@@ -4,7 +4,7 @@ import { ArrowRight, Calendar, LineChart, ShoppingCart, Wallet, Sparkles } from 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Finlo — A personal finance operating system" },
+      { title: "Finlo | A personal finance operating system" },
       { name: "description", content: "More than budgeting. Plan purchases, forecast your runway, and never miss a bill." },
     ],
   }),
@@ -31,7 +31,7 @@ function Landing() {
 
       <section className="mx-auto max-w-6xl px-6 pt-20 pb-28">
         <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
-          <Sparkles className="h-3 w-3 text-primary" /> Built for modern money management
+          <Sparkles className="h-3 w-3 text-primary" /> Built for naira spenders
         </div>
         <h1 className="mt-6 max-w-3xl text-5xl font-bold tracking-tight md:text-7xl">
           Your money,<br />
@@ -39,7 +39,7 @@ function Landing() {
         </h1>
         <p className="mt-6 max-w-xl text-lg text-muted-foreground">
           Finlo is a complete personal finance OS. Plan purchases, forecast your runway, and know
-          exactly when your balance will run thin — before it does.
+          exactly when your balance will run thin, before it does.
         </p>
         <div className="mt-10 flex flex-wrap gap-3">
           <Link to="/signup" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-primary-foreground font-medium hover:bg-primary/90 shadow-soft">
