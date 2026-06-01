@@ -1,6 +1,7 @@
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCart, ListChecks, Settings, LogOut, PiggyBank } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { PocketsteadLogo } from "@/components/PocketsteadLogo";
 
 const navItems = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard },
@@ -25,8 +26,7 @@ export function AppSidebar() {
     <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-border bg-sidebar h-screen sticky top-0">
       <div className="px-5 py-5 border-b border-sidebar-border">
         <Link to="/" className="flex items-center gap-2 font-display font-bold">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">F</span>
-          Pocketstead
+          <PocketsteadLogo />
         </Link>
       </div>
       <nav className="flex-1 p-3 space-y-1">

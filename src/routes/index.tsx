@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Calendar, LineChart, ShoppingCart, Wallet, Sparkles } from "lucide-react";
+import { PocketsteadLogo } from "@/components/PocketsteadLogo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,8 +18,7 @@ function Landing() {
       <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-10">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">F</span>
-            Pocketstead
+            <PocketsteadLogo />
           </Link>
           <nav className="flex items-center gap-3 text-sm">
             <Link to="/login" className="text-muted-foreground hover:text-foreground px-3 py-2">Sign in</Link>

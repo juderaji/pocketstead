@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { getPublicSiteUrl } from "@/integrations/supabase/config";
+import { PocketsteadLogo } from "@/components/PocketsteadLogo";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in | Pocketstead" }] }),
@@ -62,8 +63,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
     <div className="min-h-screen grid place-items-center bg-background px-4">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold justify-center mb-8">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">F</span>
-          Pocketstead
+          <PocketsteadLogo />
         </Link>
         <div className="rounded-2xl border border-border bg-surface p-8 shadow-lift">
           <h1 className="text-2xl font-bold">{title}</h1>
