@@ -25,13 +25,13 @@ export function AppSidebar() {
     router.navigate({ to: "/" });
   };
   return (
-    <aside className={`hidden shrink-0 flex-col bg-sidebar transition-[width] duration-300 md:flex ${expanded ? "w-56" : "w-20"}`}>
+    <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden bg-sidebar transition-[width] duration-300 md:flex ${expanded ? "w-56" : "w-20"}`}>
       <div className={`flex items-center px-3 py-5 ${expanded ? "justify-start" : "justify-center"}`}>
         <Link to="/" aria-label="Pocketstead home" className="font-display font-bold text-white">
           {expanded ? <PocketsteadLogo /> : <PocketsteadMark className="h-10 w-10 rounded-xl shadow-soft" />}
         </Link>
       </div>
-      <nav className="flex-1 space-y-2 px-3 py-2">
+      <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-2">
         {navItems.map((it) => {
           const active = loc.pathname === it.to || (it.to !== "/app" && loc.pathname.startsWith(it.to));
           return (
@@ -52,7 +52,7 @@ export function AppSidebar() {
           );
         })}
       </nav>
-      <div className="space-y-1 px-3 py-4">
+      <div className="shrink-0 space-y-1 border-t border-white/10 px-3 py-4">
         <SidebarTooltip label={expanded ? "Collapse sidebar" : "Expand sidebar"} show={!expanded}>
           <button onClick={() => setExpanded((open) => !open)} aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"} className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
             {expanded ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeftOpen className="h-4.5 w-4.5" />}
