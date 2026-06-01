@@ -45,7 +45,7 @@ function SettingsPage() {
     <>
       <PageHeader title="Settings" />
       <div className="space-y-4 sm:space-y-6">
-        <section className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
+        <section className="rounded-xl border border-border bg-surface p-3 shadow-soft sm:rounded-2xl sm:p-5">
           <h2 className="font-semibold mb-3">Profile</h2>
           <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
             <Field label="Display name"><input value={name} onChange={(e) => setName(e.target.value)} className="finlo-input" /></Field>
@@ -54,7 +54,7 @@ function SettingsPage() {
           <p className="text-xs text-muted-foreground mt-3">Currency: <strong>NGN (₦)</strong></p>
         </section>
 
-        <section className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
+        <section className="rounded-xl border border-border bg-surface p-3 shadow-soft sm:rounded-2xl sm:p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold">Categories</h2>
             <button onClick={() => setOpen(true)} className="btn-primary"><Plus className="h-4 w-4" /> Add</button>
@@ -63,7 +63,7 @@ function SettingsPage() {
             {categories.map((c: any) => (
               <li key={c.id} className="flex items-center gap-2 rounded-lg p-2 hover:bg-secondary/50 sm:gap-3">
                 <span className="h-3 w-3 rounded-full" style={{ background: c.color }} />
-                <span className="flex-1 font-medium">{c.name}</span>
+                <span className="flex-1 truncate text-sm font-medium sm:text-base">{c.name}</span>
                 <span className="hidden text-xs uppercase text-muted-foreground sm:inline">{c.kind}</span>
                 <button onClick={() => setEditing(c)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${c.name}`}><Pencil className="h-4 w-4" /></button>
                 <button onClick={() => removeCat(c.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Delete ${c.name}`}><Trash2 className="h-4 w-4" /></button>

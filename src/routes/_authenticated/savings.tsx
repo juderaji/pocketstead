@@ -50,38 +50,38 @@ function SavingsPage() {
             const allocated = accountGoals.reduce((sum, goal) => sum + Number(goal.saved_amount), 0);
             const unallocated = Number(account.balance) - allocated;
             return (
-              <section key={account.id} className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
-                <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-4">
+              <section key={account.id} className="rounded-xl border border-border bg-surface p-3 shadow-soft sm:rounded-2xl sm:p-5">
+                <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-3 sm:pb-4">
                   <div>
                     <h2 className="font-semibold">{account.name}</h2>
                     <p className="text-xs text-muted-foreground mt-1">Savings account balance: {formatNGN(account.balance)}</p>
                   </div>
                   <div className="text-right">
                     <div className="text-xs uppercase tracking-wider text-muted-foreground">Unallocated</div>
-                    <div className="num text-xl font-bold">{formatNGN(unallocated)}</div>
+                    <div className="num text-lg font-bold sm:text-xl">{formatNGN(unallocated)}</div>
                   </div>
                 </div>
                 {accountGoals.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-5">No goals in this account yet.</p>
                 ) : (
-                  <div className="grid gap-3 pt-4 sm:grid-cols-2">
+                  <div className="grid gap-2 pt-3 sm:grid-cols-2 sm:gap-3 sm:pt-4">
                     {accountGoals.map((goal) => {
                       const target = Number(goal.target_amount || 0);
                       const saved = Number(goal.saved_amount);
                       const pct = target > 0 ? Math.min(100, (saved / target) * 100) : 0;
                       return (
-                        <div key={goal.id} className="rounded-xl border border-border p-3.5 sm:p-4">
+                        <div key={goal.id} className="rounded-lg border border-border p-3 sm:rounded-xl sm:p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex items-center gap-2">
                               <span className="h-3 w-3 rounded-full" style={{ background: goal.color }} />
-                              <span className="font-semibold">{goal.name}</span>
+                              <span className="text-sm font-semibold sm:text-base">{goal.name}</span>
                             </div>
                             <div className="flex gap-2">
                               <button onClick={() => setEditing(goal)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${goal.name}`}><Pencil className="h-4 w-4" /></button>
                               <button onClick={() => remove(goal.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Delete ${goal.name}`}><Trash2 className="h-4 w-4" /></button>
                             </div>
                           </div>
-                          <div className="num mt-3 text-xl font-bold sm:mt-4 sm:text-2xl">{formatNGN(saved)}</div>
+                          <div className="num mt-2 text-lg font-bold sm:mt-4 sm:text-2xl">{formatNGN(saved)}</div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {target > 0 ? `of ${formatNGN(target)}` : "No target set"}
                             {goal.due_date ? ` · due ${formatDate(goal.due_date)}` : ""}
@@ -89,7 +89,7 @@ function SavingsPage() {
                           {target > 0 && <div className="h-2 mt-3 rounded-full bg-secondary overflow-hidden">
                             <div className="h-full" style={{ width: pct + "%", background: goal.color }} />
                           </div>}
-                          <div className="flex gap-2 mt-4">
+                          <div className="mt-3 flex gap-2 sm:mt-4">
                             <button onClick={() => setAdjusting({ goal, mode: "add" })} className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground inline-flex items-center gap-1"><Plus className="h-3 w-3" /> Add</button>
                             <button onClick={() => setAdjusting({ goal, mode: "withdraw" })} className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1 hover:bg-secondary"><Minus className="h-3 w-3" /> Withdraw</button>
                           </div>

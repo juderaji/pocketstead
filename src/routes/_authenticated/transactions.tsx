@@ -49,8 +49,8 @@ function TxPage() {
       <PageHeader
         title="Transactions"
         subtitle={`${tx.length} entries`}
-        action={<div className="flex gap-2">
-          <button onClick={() => setTransferOpen(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium hover:bg-secondary sm:gap-2 sm:px-4 sm:text-sm"><ArrowLeftRight className="h-4 w-4" /> Transfer</button>
+        action={<div className="grid grid-cols-2 gap-2 sm:flex">
+          <button onClick={() => setTransferOpen(true)} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium hover:bg-secondary sm:gap-2 sm:px-4 sm:text-sm"><ArrowLeftRight className="h-4 w-4" /> Transfer</button>
           <button onClick={() => setOpen(true)} className="btn-primary"><Plus className="h-4 w-4" /> Add</button>
         </div>}
       />
@@ -72,7 +72,7 @@ function TxPage() {
                   {t.type === "income" ? <ArrowUpRight className="h-4 w-4" /> : t.type.startsWith("transfer_") ? <ArrowLeftRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{t.description || t.categories?.name || "—"}</div>
+                  <div className="truncate text-sm font-medium sm:text-base">{t.description || t.categories?.name || "—"}</div>
                   <div className="text-xs text-muted-foreground flex flex-wrap gap-x-2">
                     <span>{formatDate(t.occurred_on)}</span>
                     {t.accounts?.name && <span>· {t.accounts.name}</span>}

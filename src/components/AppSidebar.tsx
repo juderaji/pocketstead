@@ -120,7 +120,7 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
         <h1 className="text-xl font-bold sm:text-2xl">{title}</h1>
         {subtitle && <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1 sm:text-sm">{subtitle}</p>}
       </div>
-      {action}
+      {action && <div className="w-full [&_.btn-primary]:w-full [&_.btn-primary]:justify-center sm:w-auto sm:[&_.btn-primary]:w-auto">{action}</div>}
     </div>
   );
 }

@@ -65,21 +65,21 @@ function ShoppingPage() {
           {items.map((i: any) => {
             const afford = canAfford(Number(i.estimated_cost), forecast);
             return (
-              <li key={i.id} className={`rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5 ${i.purchased ? "opacity-60" : ""}`}>
-                <div className="flex items-start justify-between">
-                  <button onClick={() => toggle(i.id, i.purchased)} className={`grid h-6 w-6 place-items-center rounded-md border ${i.purchased ? "bg-success border-success text-white" : "border-border"}`}>
-                    {i.purchased && <Check className="h-3.5 w-3.5" />}
-                  </button>
-                  <button onClick={() => remove(i.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
-                </div>
-                <div className={`mt-3 font-semibold ${i.purchased ? "line-through" : ""}`}>{i.name}</div>
-                <div className="num mt-1 text-lg font-bold sm:text-xl">{formatNGN(i.estimated_cost)}</div>
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+              <li key={i.id} className={`grid grid-cols-[auto_1fr_auto] items-start gap-3 rounded-xl border border-border bg-surface p-3 shadow-soft sm:rounded-2xl sm:p-4 ${i.purchased ? "opacity-60" : ""}`}>
+                <button onClick={() => toggle(i.id, i.purchased)} className={`mt-0.5 grid h-6 w-6 place-items-center rounded-md border ${i.purchased ? "bg-success border-success text-white" : "border-border"}`}>
+                  {i.purchased && <Check className="h-3.5 w-3.5" />}
+                </button>
+                <div className="min-w-0">
+                <div className={`truncate text-sm font-semibold sm:text-base ${i.purchased ? "line-through" : ""}`}>{i.name}</div>
+                <div className="num mt-0.5 text-base font-bold sm:mt-1 sm:text-xl">{formatNGN(i.estimated_cost)}</div>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs sm:mt-3 sm:gap-2">
                   <Pill color={priorityColor[i.priority]}>{priorityLabel[i.priority]}</Pill>
                   {i.planned_date && <Pill>{formatDate(i.planned_date)}</Pill>}
                   {i.categories?.name && <Pill color={i.categories.color}>{i.categories.name}</Pill>}
                   {!i.purchased && <AffordBadge a={afford} />}
                 </div>
+                </div>
+                <button onClick={() => remove(i.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
               </li>
             );
           })}

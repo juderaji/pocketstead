@@ -45,24 +45,24 @@ function BudgetsPage() {
       {budgets.length === 0 ? (
         <EmptyState text="Set a budget for your top categories." onAction={() => setOpen(true)} />
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-2 sm:gap-3">
           {budgets.map((b: any) => {
             const spent = monthTx.filter((t) => t.category_id === b.category_id).reduce((s, t) => s + Number(t.amount), 0);
             const pct = Math.min(100, (spent / Number(b.amount)) * 100);
             const over = spent > Number(b.amount);
             const remaining = Number(b.amount) - spent;
             return (
-              <div key={b.id} className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
+              <div key={b.id} className="rounded-xl border border-border bg-surface p-3 shadow-soft sm:rounded-2xl sm:p-5">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="h-3 w-3 rounded-full" style={{ background: b.categories?.color }} />
-                    <span className="font-semibold">{b.categories?.name}</span>
+                    <span className="text-sm font-semibold sm:text-base">{b.categories?.name}</span>
                   </div>
                   <button onClick={() => remove(b.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                 </div>
                 <div className="num flex items-baseline justify-between">
-                  <span className="text-xl font-bold sm:text-2xl">{formatNGN(spent)}</span>
-                  <span className="text-sm text-muted-foreground">of {formatNGN(b.amount)}</span>
+                  <span className="text-lg font-bold sm:text-2xl">{formatNGN(spent)}</span>
+                  <span className="text-xs text-muted-foreground sm:text-sm">of {formatNGN(b.amount)}</span>
                 </div>
                 <div className="h-2 mt-3 rounded-full bg-secondary overflow-hidden">
                   <div className="h-full transition-all" style={{ width: pct + "%", background: over ? "var(--destructive)" : b.categories?.color ?? "var(--primary)" }} />

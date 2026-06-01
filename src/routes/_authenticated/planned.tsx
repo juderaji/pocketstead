@@ -63,7 +63,7 @@ function PlannedPage() {
                   {p.completed && <Check className="h-3.5 w-3.5" />}
                 </button>
                 <div className="flex-1 min-w-0">
-                  <div className={`font-medium ${p.completed ? "line-through" : ""}`}>{p.name}</div>
+                  <div className={`text-sm font-medium sm:text-base ${p.completed ? "line-through" : ""}`}>{p.name}</div>
                   <div className="text-xs text-muted-foreground">Due {formatDate(p.due_date)} {p.categories?.name && `· ${p.categories.name}`}</div>
                 </div>
                 <div className="num text-sm font-semibold sm:text-base">{formatNGN(p.amount)}</div>
@@ -81,7 +81,7 @@ function PlannedPage() {
                   <Repeat className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium">{r.name}</div>
+                  <div className="text-sm font-medium sm:text-base">{r.name}</div>
                   <div className="text-xs text-muted-foreground capitalize">Day {r.day_of_month} · {r.kind}</div>
                 </div>
                 <div className={`num text-sm font-semibold sm:text-base ${r.kind === "salary" ? "text-success" : ""}`}>{r.kind === "salary" ? "+" : "-"}{formatNGN(r.amount)}</div>

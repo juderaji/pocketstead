@@ -40,23 +40,23 @@ function AccountsPage() {
       {accounts.length === 0 ? (
         <EmptyState text="Add your first account to start tracking." onAction={() => setOpen(true)} />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+        <div className="grid gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {accounts.map((a) => {
             const Icon = typeIcons[a.type] ?? Wallet;
             return (
-              <div key={a.id} className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
-                <div className="flex items-start justify-between">
-                  <div className="grid h-10 w-10 place-items-center rounded-lg" style={{ background: a.color + "20", color: a.color }}>
-                    <Icon className="h-5 w-5" />
+              <div key={a.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-xl border border-border bg-surface p-3 shadow-soft sm:relative sm:block sm:rounded-2xl sm:p-5">
+                  <div className="grid h-9 w-9 place-items-center rounded-lg sm:h-10 sm:w-10" style={{ background: a.color + "20", color: a.color }}>
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="min-w-0 sm:mt-4">
+                    <div className="text-[11px] capitalize leading-none text-muted-foreground sm:text-sm">{a.type}</div>
+                    <div className="mt-1 truncate text-sm font-semibold sm:text-base">{a.name}</div>
+                    <div className="num mt-1 truncate text-lg font-bold sm:mt-2 sm:text-2xl">{formatNGN(a.balance)}</div>
+                  </div>
+                  <div className="flex gap-3 self-start sm:absolute sm:right-5 sm:top-5 sm:gap-2">
                     <button onClick={() => setEditing(a)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${a.name}`}><Pencil className="h-4 w-4" /></button>
                     <button onClick={() => remove(a.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Archive ${a.name}`}><Trash2 className="h-4 w-4" /></button>
                   </div>
-                </div>
-                <div className="mt-3 text-xs capitalize text-muted-foreground sm:mt-4 sm:text-sm">{a.type}</div>
-                <div className="font-semibold">{a.name}</div>
-                <div className="num mt-1.5 text-xl font-bold sm:mt-2 sm:text-2xl">{formatNGN(a.balance)}</div>
               </div>
             );
           })}
@@ -124,9 +124,9 @@ export function Field({ label, children }: { label: string; children: React.Reac
 }
 export function ModalActions({ onClose, saving, label = "Save" }: { onClose: () => void; saving: boolean; label?: string }) {
   return (
-    <div className="flex justify-end gap-2 pt-2">
-      <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary">Cancel</button>
-      <button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
+    <div className="grid grid-cols-2 gap-2 pt-2 sm:flex sm:justify-end">
+      <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2.5 text-sm hover:bg-secondary sm:py-2">Cancel</button>
+      <button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 sm:py-2">
         {saving ? "Saving..." : label}
       </button>
     </div>
