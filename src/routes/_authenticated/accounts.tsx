@@ -40,11 +40,11 @@ function AccountsPage() {
       {accounts.length === 0 ? (
         <EmptyState text="Add your first account to start tracking." onAction={() => setOpen(true)} />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {accounts.map((a) => {
             const Icon = typeIcons[a.type] ?? Wallet;
             return (
-              <div key={a.id} className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
+              <div key={a.id} className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
                 <div className="flex items-start justify-between">
                   <div className="grid h-10 w-10 place-items-center rounded-lg" style={{ background: a.color + "20", color: a.color }}>
                     <Icon className="h-5 w-5" />
@@ -54,9 +54,9 @@ function AccountsPage() {
                     <button onClick={() => remove(a.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Archive ${a.name}`}><Trash2 className="h-4 w-4" /></button>
                   </div>
                 </div>
-                <div className="mt-4 text-sm text-muted-foreground capitalize">{a.type}</div>
+                <div className="mt-3 text-xs capitalize text-muted-foreground sm:mt-4 sm:text-sm">{a.type}</div>
                 <div className="font-semibold">{a.name}</div>
-                <div className="num mt-2 text-2xl font-bold">{formatNGN(a.balance)}</div>
+                <div className="num mt-1.5 text-xl font-bold sm:mt-2 sm:text-2xl">{formatNGN(a.balance)}</div>
               </div>
             );
           })}
@@ -111,8 +111,8 @@ function AccountDialog({ onClose, account }: { onClose: () => void; account?: { 
 
 export function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-30 grid place-items-center bg-foreground/40 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-surface p-6 shadow-lift" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 grid items-end bg-foreground/40 sm:place-items-center sm:p-4" onClick={onClose}>
+      <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-surface p-4 shadow-lift sm:max-w-md sm:rounded-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
         <h2 className="font-display text-lg font-bold mb-4">{title}</h2>
         {children}
       </div>
@@ -135,7 +135,7 @@ export function ModalActions({ onClose, saving, label = "Save" }: { onClose: () 
 
 export function EmptyState({ text, onAction }: { text: string; onAction?: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
+    <div className="rounded-xl border border-dashed border-border bg-surface p-8 text-center sm:rounded-2xl sm:p-12">
       <p className="text-muted-foreground">{text}</p>
       {onAction && <button onClick={onAction} className="btn-primary mt-4 mx-auto"><Plus className="h-4 w-4" /> Add now</button>}
     </div>
@@ -144,9 +144,10 @@ export function EmptyState({ text, onAction }: { text: string; onAction?: () => 
 
 export function BtnStyles() {
   return <style>{`
-    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;border-radius:.5rem;background:var(--primary);color:var(--primary-foreground);padding:.5rem 1rem;font-size:.875rem;font-weight:500}
+    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;border-radius:.5rem;background:var(--primary);color:var(--primary-foreground);padding:.5rem .875rem;font-size:.8125rem;font-weight:500}
     .btn-primary:hover{opacity:.9}
     .finlo-input{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:.5rem;padding:.55rem .75rem;font-size:.9rem;outline:none}
     .finlo-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+    @media (min-width:640px){.btn-primary{padding:.5rem 1rem;font-size:.875rem}}
   `}</style>;
 }

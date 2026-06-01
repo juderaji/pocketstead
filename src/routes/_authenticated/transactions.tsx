@@ -50,7 +50,7 @@ function TxPage() {
         title="Transactions"
         subtitle={`${tx.length} entries`}
         action={<div className="flex gap-2">
-          <button onClick={() => setTransferOpen(true)} className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-secondary inline-flex items-center gap-2"><ArrowLeftRight className="h-4 w-4" /> Transfer</button>
+          <button onClick={() => setTransferOpen(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium hover:bg-secondary sm:gap-2 sm:px-4 sm:text-sm"><ArrowLeftRight className="h-4 w-4" /> Transfer</button>
           <button onClick={() => setOpen(true)} className="btn-primary"><Plus className="h-4 w-4" /> Add</button>
         </div>}
       />
@@ -64,11 +64,11 @@ function TxPage() {
       {filtered.length === 0 ? (
         <EmptyState text="No transactions yet." onAction={() => setOpen(true)} />
       ) : (
-        <div className="rounded-2xl border border-border bg-surface overflow-hidden">
+        <div className="overflow-hidden rounded-xl border border-border bg-surface sm:rounded-2xl">
           <ul className="divide-y divide-border">
             {filtered.map((t: any) => (
-              <li key={t.id} className="flex items-center gap-4 px-4 py-3 hover:bg-secondary/40">
-                <div className={`grid h-9 w-9 place-items-center rounded-lg ${t.type === "income" ? "bg-success/15 text-success" : t.type.startsWith("transfer_") ? "bg-primary-soft text-primary" : "bg-destructive/10 text-destructive"}`}>
+              <li key={t.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-x-2.5 gap-y-1 px-3 py-2.5 hover:bg-secondary/40 sm:flex sm:gap-4 sm:px-4 sm:py-3">
+                <div className={`row-span-2 grid h-8 w-8 place-items-center rounded-lg sm:h-9 sm:w-9 ${t.type === "income" ? "bg-success/15 text-success" : t.type.startsWith("transfer_") ? "bg-primary-soft text-primary" : "bg-destructive/10 text-destructive"}`}>
                   {t.type === "income" ? <ArrowUpRight className="h-4 w-4" /> : t.type.startsWith("transfer_") ? <ArrowLeftRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -79,8 +79,8 @@ function TxPage() {
                     {t.categories?.name && <span>· {t.categories.name}</span>}
                   </div>
                 </div>
-                <div className={`num font-semibold ${t.type === "income" ? "text-success" : t.type.startsWith("transfer_") ? "text-primary" : ""}`}>{t.type === "income" || t.type === "transfer_in" ? "+" : "-"}{formatNGN(t.amount)}</div>
-                <div className="flex gap-2">
+                <div className={`num text-sm font-semibold sm:text-base ${t.type === "income" ? "text-success" : t.type.startsWith("transfer_") ? "text-primary" : ""}`}>{t.type === "income" || t.type === "transfer_in" ? "+" : "-"}{formatNGN(t.amount)}</div>
+                <div className="col-start-3 flex justify-end gap-3 sm:gap-2">
                   <button onClick={() => t.type.startsWith("transfer_") ? setEditingTransfer(t) : setEditing(t)} className="text-muted-foreground hover:text-primary" aria-label={t.type.startsWith("transfer_") ? "Edit transfer" : "Edit transaction"}><Pencil className="h-4 w-4" /></button>
                   <button onClick={() => remove(t.id)} className="text-muted-foreground hover:text-destructive" aria-label="Delete transaction"><Trash2 className="h-4 w-4" /></button>
                 </div>

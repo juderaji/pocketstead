@@ -58,7 +58,7 @@ function PlannedPage() {
         planned.length === 0 ? <EmptyState text="No planned expenses yet." onAction={() => setOpenP(true)} /> : (
           <ul className="space-y-2">
             {planned.map((p: any) => (
-              <li key={p.id} className={`rounded-xl border border-border bg-surface p-4 flex items-center gap-3 ${p.completed ? "opacity-60" : ""}`}>
+              <li key={p.id} className={`grid grid-cols-[auto_1fr_auto] items-center gap-x-2.5 gap-y-1 rounded-xl border border-border bg-surface p-3 sm:flex sm:gap-3 sm:p-4 ${p.completed ? "opacity-60" : ""}`}>
                 <button onClick={() => togglePlanned(p.id, p.completed)} className={`grid h-6 w-6 place-items-center rounded-md border ${p.completed ? "bg-success border-success text-white" : "border-border"}`}>
                   {p.completed && <Check className="h-3.5 w-3.5" />}
                 </button>
@@ -66,8 +66,8 @@ function PlannedPage() {
                   <div className={`font-medium ${p.completed ? "line-through" : ""}`}>{p.name}</div>
                   <div className="text-xs text-muted-foreground">Due {formatDate(p.due_date)} {p.categories?.name && `· ${p.categories.name}`}</div>
                 </div>
-                <div className="num font-semibold">{formatNGN(p.amount)}</div>
-                <button onClick={() => deletePlanned(p.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                <div className="num text-sm font-semibold sm:text-base">{formatNGN(p.amount)}</div>
+                <button onClick={() => deletePlanned(p.id)} className="col-start-3 text-right text-muted-foreground hover:text-destructive"><Trash2 className="ml-auto h-4 w-4" /></button>
               </li>
             ))}
           </ul>
@@ -76,7 +76,7 @@ function PlannedPage() {
         recurring.length === 0 ? <EmptyState text="No recurring bills or salaries yet." onAction={() => setOpenR(true)} /> : (
           <ul className="space-y-2">
             {recurring.map((r: any) => (
-              <li key={r.id} className="rounded-xl border border-border bg-surface p-4 flex items-center gap-3">
+              <li key={r.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-x-2.5 gap-y-1 rounded-xl border border-border bg-surface p-3 sm:flex sm:gap-3 sm:p-4">
                 <div className={`grid h-9 w-9 place-items-center rounded-lg ${r.kind === "salary" ? "bg-success/15 text-success" : "bg-primary-soft text-primary"}`}>
                   <Repeat className="h-4 w-4" />
                 </div>
@@ -84,8 +84,8 @@ function PlannedPage() {
                   <div className="font-medium">{r.name}</div>
                   <div className="text-xs text-muted-foreground capitalize">Day {r.day_of_month} · {r.kind}</div>
                 </div>
-                <div className={`num font-semibold ${r.kind === "salary" ? "text-success" : ""}`}>{r.kind === "salary" ? "+" : "-"}{formatNGN(r.amount)}</div>
-                <button onClick={() => deleteRecurring(r.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                <div className={`num text-sm font-semibold sm:text-base ${r.kind === "salary" ? "text-success" : ""}`}>{r.kind === "salary" ? "+" : "-"}{formatNGN(r.amount)}</div>
+                <button onClick={() => deleteRecurring(r.id)} className="col-start-3 text-right text-muted-foreground hover:text-destructive"><Trash2 className="ml-auto h-4 w-4" /></button>
               </li>
             ))}
           </ul>
@@ -99,7 +99,7 @@ function PlannedPage() {
 }
 
 function Tab({ active, onClick, icon: Icon, children }: any) {
-  return <button onClick={onClick} className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium ${active ? "bg-foreground text-background" : "bg-surface border border-border text-muted-foreground"}`}><Icon className="h-4 w-4" />{children}</button>;
+  return <button onClick={onClick} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium sm:gap-2 sm:px-4 sm:text-sm ${active ? "bg-foreground text-background" : "bg-surface border border-border text-muted-foreground"}`}><Icon className="h-4 w-4" />{children}</button>;
 }
 
 function PlannedDialog({ onClose, categories }: { onClose: () => void; categories: any[] }) {

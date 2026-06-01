@@ -80,16 +80,16 @@ function Dashboard() {
       <PageHeader title="Dashboard" subtitle={format(now, "EEEE, MMMM d")} />
 
       <div className="flex flex-col">
-      <div className="order-1 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="order-1 grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4">
         <StatCard label="Total balance" value={formatNGN(totalBalance)} sub={`${accounts.length} accounts`} accent />
         <StatCard label="Total bank balance" value={formatNGN(totalBankBalance)} sub={`${bankAccounts.length} bank ${bankAccounts.length === 1 ? "account" : "accounts"}`} />
         <StatCard label="Income this month" value={formatNGN(monthIncome)} icon={<ArrowUpRight className="text-success h-4 w-4" />} />
         <StatCard label="Spent this month" value={formatNGN(monthExpense)} icon={<ArrowDownRight className="text-destructive h-4 w-4" />} />
       </div>
 
-      <div className="order-2 mt-6 grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
-          <h2 className="font-semibold mb-4">{format(now, "MMMM")} overview</h2>
+      <div className="order-2 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3">
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
+          <h2 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">{format(now, "MMMM")} overview</h2>
           <div className="space-y-3">
             <OverviewRow label="Income" value={formatNGN(monthIncome)} tone="success" />
             <OverviewRow label="Expenses" value={formatNGN(monthExpense)} tone="destructive" />
@@ -98,8 +98,8 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 rounded-2xl border border-border bg-surface p-5 shadow-soft">
-          <h2 className="font-semibold mb-4">Recent activity</h2>
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5 lg:col-span-2">
+          <h2 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">Recent activity</h2>
           {recentActivity.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">No transactions yet.</p>
           ) : (
@@ -123,13 +123,13 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="order-4 mt-6 grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-2xl border border-border bg-surface p-5 shadow-soft">
+      <div className="order-4 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3">
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Forecast for {format(now, "MMMM")}</h2>
+            <h2 className="text-sm font-semibold sm:text-base">Forecast for {format(now, "MMMM")}</h2>
             <TrendingUp className="h-4 w-4 text-primary" />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
             <ForecastRow label="Projected month-end" value={formatNGN(forecast.projectedMonthEnd)} highlight />
             <ForecastRow label="Safe daily spend" value={formatNGN(forecast.safeDailySpend)} />
             <ForecastRow label="Avg daily spend" value={formatNGN(forecast.avgDailyVariableSpend)} />
@@ -148,8 +148,8 @@ function Dashboard() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
-          <h2 className="font-semibold mb-4">Spending by category</h2>
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
+          <h2 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">Spending by category</h2>
           {catData.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">No expenses yet this month.</p>
           ) : (
@@ -187,10 +187,10 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="order-3 mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
-          <h2 className="font-semibold mb-4">Last 6 months</h2>
-          <ResponsiveContainer width="100%" height={220}>
+      <div className="order-3 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
+          <h2 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">Last 6 months</h2>
+          <ResponsiveContainer width="100%" height={190}>
             <BarChart data={monthly}>
               <XAxis dataKey="month" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => formatNGN(v, { compact: true })} />
@@ -201,9 +201,9 @@ function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Allocated savings</h2>
+            <h2 className="text-sm font-semibold sm:text-base">Allocated savings</h2>
             <PiggyBank className="h-4 w-4 text-primary" />
           </div>
           <div className="grid grid-cols-2 gap-3 mb-4">
@@ -240,12 +240,12 @@ function Dashboard() {
 
 function StatCard({ label, value, sub, icon, accent }: { label: string; value: string; sub?: string; icon?: React.ReactNode; accent?: boolean }) {
   return (
-    <div className={`rounded-2xl border p-5 shadow-soft ${accent ? "bg-foreground text-background border-foreground" : "bg-surface border-border"}`}>
+    <div className={`min-w-0 rounded-xl border p-3 shadow-soft sm:rounded-2xl sm:p-5 ${accent ? "bg-foreground text-background border-foreground" : "bg-surface border-border"}`}>
       <div className="flex items-center justify-between">
-        <span className={`text-xs uppercase tracking-wider ${accent ? "text-background/60" : "text-muted-foreground"}`}>{label}</span>
+        <span className={`text-[10px] uppercase leading-tight tracking-wider sm:text-xs ${accent ? "text-background/60" : "text-muted-foreground"}`}>{label}</span>
         {icon}
       </div>
-      <div className="num mt-2 text-3xl font-bold">{value}</div>
+      <div className="num mt-1.5 truncate text-lg font-bold sm:mt-2 sm:text-3xl">{value}</div>
       {sub && <div className={`text-xs mt-1 ${accent ? "text-background/60" : "text-muted-foreground"}`}>{sub}</div>}
     </div>
   );
@@ -262,9 +262,9 @@ function OverviewRow({ label, value, tone }: { label: string; value: string; ton
 
 function ForecastRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`rounded-lg p-3 ${highlight ? "bg-primary-soft" : "bg-secondary"}`}>
+    <div className={`rounded-lg p-2.5 sm:p-3 ${highlight ? "bg-primary-soft" : "bg-secondary"}`}>
       <div className="text-xs text-muted-foreground">{label}</div>
-      <div className={`num text-lg font-semibold mt-1 ${highlight ? "text-primary" : ""}`}>{value}</div>
+      <div className={`num mt-1 truncate text-sm font-semibold sm:text-lg ${highlight ? "text-primary" : ""}`}>{value}</div>
     </div>
   );
 }

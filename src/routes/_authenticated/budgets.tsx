@@ -52,7 +52,7 @@ function BudgetsPage() {
             const over = spent > Number(b.amount);
             const remaining = Number(b.amount) - spent;
             return (
-              <div key={b.id} className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
+              <div key={b.id} className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="h-3 w-3 rounded-full" style={{ background: b.categories?.color }} />
@@ -61,7 +61,7 @@ function BudgetsPage() {
                   <button onClick={() => remove(b.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                 </div>
                 <div className="num flex items-baseline justify-between">
-                  <span className="text-2xl font-bold">{formatNGN(spent)}</span>
+                  <span className="text-xl font-bold sm:text-2xl">{formatNGN(spent)}</span>
                   <span className="text-sm text-muted-foreground">of {formatNGN(b.amount)}</span>
                 </div>
                 <div className="h-2 mt-3 rounded-full bg-secondary overflow-hidden">

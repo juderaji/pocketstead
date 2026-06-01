@@ -60,15 +60,15 @@ function LoginPage() {
 
 export function AuthShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <div className="min-h-screen grid place-items-center bg-background px-4">
+    <div className="grid min-h-screen place-items-center bg-background px-3 py-6 sm:px-4">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold justify-center mb-8">
+        <Link to="/" className="mb-5 flex items-center justify-center gap-2 font-display text-lg font-bold sm:mb-8">
           <PocketsteadLogo />
         </Link>
-        <div className="rounded-2xl border border-border bg-surface p-8 shadow-lift">
-          <h1 className="text-2xl font-bold">{title}</h1>
+        <div className="rounded-xl border border-border bg-surface p-5 shadow-lift sm:rounded-2xl sm:p-8">
+          <h1 className="text-xl font-bold sm:text-2xl">{title}</h1>
           <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
-          <div className="mt-6 space-y-4">{children}</div>
+          <div className="mt-5 space-y-4 sm:mt-6">{children}</div>
         </div>
       </div>
       <style>{`.auth-input{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:.6rem .75rem;font-size:.9rem;outline:none}.auth-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}`}</style>

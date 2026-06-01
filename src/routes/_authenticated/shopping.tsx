@@ -65,7 +65,7 @@ function ShoppingPage() {
           {items.map((i: any) => {
             const afford = canAfford(Number(i.estimated_cost), forecast);
             return (
-              <li key={i.id} className={`rounded-2xl border border-border bg-surface p-5 shadow-soft ${i.purchased ? "opacity-60" : ""}`}>
+              <li key={i.id} className={`rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5 ${i.purchased ? "opacity-60" : ""}`}>
                 <div className="flex items-start justify-between">
                   <button onClick={() => toggle(i.id, i.purchased)} className={`grid h-6 w-6 place-items-center rounded-md border ${i.purchased ? "bg-success border-success text-white" : "border-border"}`}>
                     {i.purchased && <Check className="h-3.5 w-3.5" />}
@@ -73,7 +73,7 @@ function ShoppingPage() {
                   <button onClick={() => remove(i.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                 </div>
                 <div className={`mt-3 font-semibold ${i.purchased ? "line-through" : ""}`}>{i.name}</div>
-                <div className="num text-xl font-bold mt-1">{formatNGN(i.estimated_cost)}</div>
+                <div className="num mt-1 text-lg font-bold sm:text-xl">{formatNGN(i.estimated_cost)}</div>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                   <Pill color={priorityColor[i.priority]}>{priorityLabel[i.priority]}</Pill>
                   {i.planned_date && <Pill>{formatDate(i.planned_date)}</Pill>}

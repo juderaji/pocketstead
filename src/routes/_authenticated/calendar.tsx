@@ -42,9 +42,9 @@ function CalendarPage() {
     <>
       <PageHeader title="Calendar" subtitle="Your financial timeline" />
 
-      <div className="rounded-2xl border border-border bg-surface shadow-soft overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <h2 className="font-display text-lg font-semibold">{format(cursor, "MMMM yyyy")}</h2>
+      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-soft sm:rounded-2xl">
+        <div className="flex items-center justify-between border-b border-border p-3 sm:p-4">
+          <h2 className="font-display text-base font-semibold sm:text-lg">{format(cursor, "MMMM yyyy")}</h2>
           <div className="flex items-center gap-1">
             <button onClick={() => setCursor(addMonths(cursor, -1))} className="rounded-md p-1.5 hover:bg-secondary"><ChevronLeft className="h-4 w-4" /></button>
             <button onClick={() => setCursor(new Date())} className="rounded-md px-3 py-1 text-xs hover:bg-secondary">Today</button>
@@ -52,11 +52,12 @@ function CalendarPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-7 border-b border-border bg-secondary/40 text-xs font-medium text-muted-foreground">
+        <div className="overflow-x-auto">
+        <div className="grid min-w-[630px] grid-cols-7 border-b border-border bg-secondary/40 text-xs font-medium text-muted-foreground sm:min-w-0">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => <div key={d} className="px-2 py-2 text-center">{d}</div>)}
         </div>
 
-        <div className="grid grid-cols-7">
+        <div className="grid min-w-[630px] grid-cols-7 sm:min-w-0">
           {days.map((d) => {
             const inMonth = isSameMonth(d, cursor);
             const dom = getDate(d);
@@ -83,9 +84,10 @@ function CalendarPage() {
             );
           })}
         </div>
+        </div>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-6 sm:grid-cols-3 sm:gap-3">
         <Stat label="Bills this month" value={formatNGN(forecast.recurringBillsRemaining)} />
         <Stat label="Planned this month" value={formatNGN(forecast.plannedRemaining)} />
         <Stat label="Projected month-end" value={formatNGN(forecast.projectedMonthEnd)} />
@@ -97,9 +99,9 @@ function CalendarPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-surface p-4">
+    <div className="rounded-xl border border-border bg-surface p-3 sm:p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="num text-xl font-bold mt-1">{value}</div>
+      <div className="num mt-1 truncate text-base font-bold sm:text-xl">{value}</div>
     </div>
   );
 }

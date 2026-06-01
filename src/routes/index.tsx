@@ -16,7 +16,7 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
             <PocketsteadLogo />
           </Link>
@@ -29,19 +29,19 @@ function Landing() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 pt-20 pb-28">
+      <section className="mx-auto max-w-6xl px-4 pb-16 pt-12 sm:px-6 sm:pb-28 sm:pt-20">
         <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
           <Sparkles className="h-3 w-3 text-primary" /> Built for everyday money decisions
         </div>
-        <h1 className="mt-6 max-w-3xl text-5xl font-bold tracking-tight md:text-7xl">
+        <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:mt-6 sm:text-5xl md:text-7xl">
           Your money,<br />
           <span className="text-primary">predicted</span> not just tracked.
         </h1>
-        <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+        <p className="mt-4 max-w-xl text-base text-muted-foreground sm:mt-6 sm:text-lg">
           Pocketstead is a complete personal finance OS. Plan purchases, forecast your runway, and know
           exactly when your balance will run thin, before it does.
         </p>
-        <div className="mt-10 flex flex-wrap gap-3">
+        <div className="mt-7 flex flex-wrap gap-3 sm:mt-10">
           <Link to="/signup" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-primary-foreground font-medium hover:bg-primary/90 shadow-soft">
             Start free <ArrowRight className="h-4 w-4" />
           </Link>
@@ -50,14 +50,14 @@ function Landing() {
           </Link>
         </div>
 
-        <div className="mt-20 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-3 sm:mt-20 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[
             { icon: Wallet, title: "Wallets & transactions", desc: "Track every account in one place with categorized history." },
             { icon: LineChart, title: "Forecast engine", desc: "Project your month-end balance and your run-out date." },
             { icon: Calendar, title: "Financial calendar", desc: "See bills, salary and planned purchases day by day." },
             { icon: ShoppingCart, title: "Shopping intel", desc: "Every wishlist item shows whether you can afford it." },
           ].map((f) => (
-            <div key={f.title} className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
+            <div key={f.title} className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary-soft text-primary">
                 <f.icon className="h-5 w-5" />
               </div>

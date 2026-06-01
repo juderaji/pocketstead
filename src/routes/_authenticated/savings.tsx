@@ -44,13 +44,13 @@ function SavingsPage() {
       ) : goals.length === 0 ? (
         <EmptyState text="Create a goal for rent, emergency savings, or anything else you are setting money aside for." onAction={() => setOpen(true)} />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {savingsAccounts.map((account) => {
             const accountGoals = goals.filter((goal) => goal.account_id === account.id);
             const allocated = accountGoals.reduce((sum, goal) => sum + Number(goal.saved_amount), 0);
             const unallocated = Number(account.balance) - allocated;
             return (
-              <section key={account.id} className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
+              <section key={account.id} className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-4">
                   <div>
                     <h2 className="font-semibold">{account.name}</h2>
@@ -70,7 +70,7 @@ function SavingsPage() {
                       const saved = Number(goal.saved_amount);
                       const pct = target > 0 ? Math.min(100, (saved / target) * 100) : 0;
                       return (
-                        <div key={goal.id} className="rounded-xl border border-border p-4">
+                        <div key={goal.id} className="rounded-xl border border-border p-3.5 sm:p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex items-center gap-2">
                               <span className="h-3 w-3 rounded-full" style={{ background: goal.color }} />
@@ -81,7 +81,7 @@ function SavingsPage() {
                               <button onClick={() => remove(goal.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Delete ${goal.name}`}><Trash2 className="h-4 w-4" /></button>
                             </div>
                           </div>
-                          <div className="num mt-4 text-2xl font-bold">{formatNGN(saved)}</div>
+                          <div className="num mt-3 text-xl font-bold sm:mt-4 sm:text-2xl">{formatNGN(saved)}</div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {target > 0 ? `of ${formatNGN(target)}` : "No target set"}
                             {goal.due_date ? ` · due ${formatDate(goal.due_date)}` : ""}
