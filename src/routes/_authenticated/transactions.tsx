@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/AppSidebar";
 import { Modal, Field, ModalActions, EmptyState, BtnStyles } from "./accounts";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from "lucide-react";
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, ArrowLeftRight, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/transactions")({
   head: () => ({ meta: [{ title: "Transactions — Finlo" }] }),
@@ -27,6 +27,7 @@ function TxPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
   const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
 
   const filtered = useMemo(() => filter === "all" ? tx : tx.filter((t) => t.type === filter), [tx, filter]);
@@ -35,15 +36,7 @@ function TxPage() {
     const t = tx.find((x) => x.id === id);
     if (!t) return;
     if (!confirm("Delete this transaction?")) return;
-    // adjust account balance
-    if (t.account_id) {
-      const acc = accounts.find((a) => a.id === t.account_id);
-      if (acc) {
-        const delta = t.type === "income" ? -Number(t.amount) : Number(t.amount);
-        await supabase.from("accounts").update({ balance: Number(acc.balance) + delta }).eq("id", acc.id);
-      }
-    }
-    const { error } = await supabase.from("transactions").delete().eq("id", id);
+    const { error } = await supabase.rpc("delete_transaction", { p_transaction_id: id });
     if (error) toast.error(error.message);
     else { toast.success("Deleted"); qc.invalidateQueries(); }
   };
@@ -84,13 +77,17 @@ function TxPage() {
                   </div>
                 </div>
                 <div className={`num font-semibold ${t.type === "income" ? "text-success" : t.type.startsWith("transfer_") ? "text-primary" : ""}`}>{t.type === "income" || t.type === "transfer_in" ? "+" : "-"}{formatNGN(t.amount)}</div>
-                {!t.type.startsWith("transfer_") && <button onClick={() => remove(t.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>}
+                {!t.type.startsWith("transfer_") && <div className="flex gap-2">
+                  <button onClick={() => setEditing(t)} className="text-muted-foreground hover:text-primary" aria-label="Edit transaction"><Pencil className="h-4 w-4" /></button>
+                  <button onClick={() => remove(t.id)} className="text-muted-foreground hover:text-destructive" aria-label="Delete transaction"><Trash2 className="h-4 w-4" /></button>
+                </div>}
               </li>
             ))}
           </ul>
         </div>
       )}
       {open && <TxDialog onClose={() => setOpen(false)} accounts={accounts} categories={categories} />}
+      {editing && <TxDialog transaction={editing} onClose={() => setEditing(null)} accounts={accounts} categories={categories} />}
       {transferOpen && <TransferDialog onClose={() => setTransferOpen(false)} accounts={accounts} />}
       <BtnStyles />
     </>
@@ -149,14 +146,14 @@ function TransferDialog({ onClose, accounts }: { onClose: () => void; accounts: 
   );
 }
 
-function TxDialog({ onClose, accounts, categories }: { onClose: () => void; accounts: any[]; categories: any[] }) {
+function TxDialog({ onClose, accounts, categories, transaction }: { onClose: () => void; accounts: any[]; categories: any[]; transaction?: any }) {
   const qc = useQueryClient();
-  const [type, setType] = useState<"income" | "expense">("expense");
-  const [amount, setAmount] = useState("");
-  const [account_id, setAccount] = useState(accounts[0]?.id ?? "");
-  const [category_id, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [occurred_on, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [type, setType] = useState<"income" | "expense">(transaction?.type ?? "expense");
+  const [amount, setAmount] = useState(transaction ? String(transaction.amount) : "");
+  const [account_id, setAccount] = useState(transaction?.account_id ?? accounts[0]?.id ?? "");
+  const [category_id, setCategory] = useState(transaction?.category_id ?? "");
+  const [description, setDescription] = useState(transaction?.description ?? "");
+  const [occurred_on, setDate] = useState(transaction?.occurred_on ?? new Date().toISOString().slice(0, 10));
   const [saving, setSaving] = useState(false);
 
   const filteredCats = categories.filter((c) => c.kind === type);
@@ -165,26 +162,34 @@ function TxDialog({ onClose, accounts, categories }: { onClose: () => void; acco
     e.preventDefault();
     if (!account_id) return toast.error("Add an account first");
     setSaving(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setSaving(false); return; }
     const amt = Number(amount);
-    const { error } = await supabase.from("transactions").insert({
-      user_id: user.id, account_id, category_id: category_id || null, amount: amt, type, description, occurred_on,
-    });
-    if (!error && account_id) {
-      const acc = accounts.find((a) => a.id === account_id);
-      if (acc) {
-        const delta = type === "income" ? amt : -amt;
-        await supabase.from("accounts").update({ balance: Number(acc.balance) + delta }).eq("id", account_id);
+    let error;
+    if (transaction) {
+      ({ error } = await supabase.rpc("update_transaction", {
+        p_transaction_id: transaction.id, p_account_id: account_id, p_category_id: category_id || null,
+        p_amount: amt, p_type: type, p_description: description, p_occurred_on: occurred_on,
+      }));
+    } else {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setSaving(false); return; }
+      ({ error } = await supabase.from("transactions").insert({
+        user_id: user.id, account_id, category_id: category_id || null, amount: amt, type, description, occurred_on,
+      }));
+      if (!error && account_id) {
+        const acc = accounts.find((a) => a.id === account_id);
+        if (acc) {
+          const delta = type === "income" ? amt : -amt;
+          await supabase.from("accounts").update({ balance: Number(acc.balance) + delta }).eq("id", account_id);
+        }
       }
     }
     setSaving(false);
     if (error) toast.error(error.message);
-    else { toast.success("Added"); qc.invalidateQueries(); onClose(); }
+    else { toast.success(transaction ? "Updated" : "Added"); qc.invalidateQueries(); onClose(); }
   };
 
   return (
-    <Modal onClose={onClose} title="New transaction">
+    <Modal onClose={onClose} title={transaction ? "Edit transaction" : "New transaction"}>
       <form onSubmit={save} className="space-y-3">
         <div className="grid grid-cols-2 gap-2">
           {(["expense", "income"] as const).map((t) => (

@@ -330,6 +330,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_transaction: {
+        Args: {
+          p_transaction_id: string
+        }
+        Returns: undefined
+      }
       transfer_funds: {
         Args: {
           p_amount: number
@@ -337,6 +343,18 @@ export type Database = {
           p_from_account_id: string
           p_occurred_on?: string
           p_to_account_id: string
+        }
+        Returns: undefined
+      }
+      update_transaction: {
+        Args: {
+          p_account_id: string
+          p_amount: number
+          p_category_id: string | null
+          p_description: string
+          p_occurred_on: string
+          p_transaction_id: string
+          p_type: string
         }
         Returns: undefined
       }

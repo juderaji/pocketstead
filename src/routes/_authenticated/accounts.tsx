@@ -6,7 +6,7 @@ import { formatNGN } from "@/lib/format";
 import { PageHeader } from "@/components/AppSidebar";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Wallet, Building2, CreditCard, PiggyBank, Trash2 } from "lucide-react";
+import { Plus, Wallet, Building2, CreditCard, PiggyBank, Trash2, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/accounts")({
   head: () => ({ meta: [{ title: "Accounts — Finlo" }] }),
@@ -20,6 +20,7 @@ function AccountsPage() {
   const { data: accounts } = useSuspenseQuery(accountsQuery);
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<(typeof accounts)[number] | null>(null);
   const total = accounts.reduce((s, a) => s + Number(a.balance), 0);
 
   const remove = async (id: string) => {
@@ -48,7 +49,10 @@ function AccountsPage() {
                   <div className="grid h-10 w-10 place-items-center rounded-lg" style={{ background: a.color + "20", color: a.color }}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  <button onClick={() => remove(a.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                  <div className="flex gap-2">
+                    <button onClick={() => setEditing(a)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${a.name}`}><Pencil className="h-4 w-4" /></button>
+                    <button onClick={() => remove(a.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Archive ${a.name}`}><Trash2 className="h-4 w-4" /></button>
+                  </div>
                 </div>
                 <div className="mt-4 text-sm text-muted-foreground capitalize">{a.type}</div>
                 <div className="font-semibold">{a.name}</div>
@@ -59,17 +63,18 @@ function AccountsPage() {
         </div>
       )}
       {open && <AccountDialog onClose={() => setOpen(false)} />}
+      {editing && <AccountDialog account={editing} onClose={() => setEditing(null)} />}
       <BtnStyles />
     </>
   );
 }
 
-function AccountDialog({ onClose }: { onClose: () => void }) {
+function AccountDialog({ onClose, account }: { onClose: () => void; account?: { id: string; name: string; type: string; color: string } }) {
   const qc = useQueryClient();
-  const [name, setName] = useState("");
-  const [type, setType] = useState("cash");
+  const [name, setName] = useState(account?.name ?? "");
+  const [type, setType] = useState(account?.type ?? "cash");
   const [balance, setBalance] = useState("0");
-  const [color, setColor] = useState("#3b82f6");
+  const [color, setColor] = useState(account?.color ?? "#3b82f6");
   const [saving, setSaving] = useState(false);
 
   const save = async (e: React.FormEvent) => {
@@ -77,14 +82,16 @@ function AccountDialog({ onClose }: { onClose: () => void }) {
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setSaving(false); return; }
-    const { error } = await supabase.from("accounts").insert({ user_id: user.id, name, type, balance: Number(balance), color });
+    const { error } = account
+      ? await supabase.from("accounts").update({ name, type, color }).eq("id", account.id)
+      : await supabase.from("accounts").insert({ user_id: user.id, name, type, balance: Number(balance), color });
     setSaving(false);
     if (error) toast.error(error.message);
-    else { toast.success("Account added"); qc.invalidateQueries({ queryKey: ["accounts"] }); onClose(); }
+    else { toast.success(account ? "Account updated" : "Account added"); qc.invalidateQueries({ queryKey: ["accounts"] }); onClose(); }
   };
 
   return (
-    <Modal onClose={onClose} title="New account">
+    <Modal onClose={onClose} title={account ? "Edit account" : "New account"}>
       <form onSubmit={save} className="space-y-3">
         <Field label="Name"><input required value={name} onChange={(e) => setName(e.target.value)} className="finlo-input" placeholder="e.g. GTBank Savings" /></Field>
         <Field label="Type">
@@ -93,7 +100,7 @@ function AccountDialog({ onClose }: { onClose: () => void }) {
           </select>
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Starting balance"><input type="number" step="0.01" value={balance} onChange={(e) => setBalance(e.target.value)} className="finlo-input" /></Field>
+          {!account && <Field label="Starting balance"><input type="number" step="0.01" value={balance} onChange={(e) => setBalance(e.target.value)} className="finlo-input" /></Field>}
           <Field label="Color"><input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="finlo-input h-10" /></Field>
         </div>
         <ModalActions onClose={onClose} saving={saving} />
