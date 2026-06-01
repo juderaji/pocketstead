@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQueries } from "@tanstack/react-query";
-import { accountsQuery, recurringQuery, plannedQuery, transactionsQuery, budgetsQuery } from "@/lib/queries";
+import { accountsQuery, recurringQuery, plannedQuery, transactionsQuery, savingsGoalsQuery } from "@/lib/queries";
 import { formatNGN } from "@/lib/format";
 import { computeForecast } from "@/lib/forecast";
 import { PageHeader } from "@/components/AppSidebar";
-import { ArrowDownRight, ArrowUpRight, TrendingUp, AlertTriangle } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, TrendingUp, AlertTriangle, ArrowLeftRight, PiggyBank } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import { endOfMonth, startOfMonth, format } from "date-fns";
 
@@ -16,15 +16,15 @@ export const Route = createFileRoute("/_authenticated/app")({
       context.queryClient.ensureQueryData(recurringQuery),
       context.queryClient.ensureQueryData(plannedQuery),
       context.queryClient.ensureQueryData(transactionsQuery),
-      context.queryClient.ensureQueryData(budgetsQuery),
+      context.queryClient.ensureQueryData(savingsGoalsQuery),
     ]),
   component: Dashboard,
   errorComponent: ({ error }) => <div className="p-6 text-destructive">Failed to load: {error.message}</div>,
 });
 
 function Dashboard() {
-  const [{ data: accounts }, { data: recurring }, { data: planned }, { data: tx }, { data: budgets }] = useSuspenseQueries({
-    queries: [accountsQuery, recurringQuery, plannedQuery, transactionsQuery, budgetsQuery],
+  const [{ data: accounts }, { data: recurring }, { data: planned }, { data: tx }, { data: savingsGoals }] = useSuspenseQueries({
+    queries: [accountsQuery, recurringQuery, plannedQuery, transactionsQuery, savingsGoalsQuery],
   });
 
   const totalBalance = accounts.reduce((s, a) => s + Number(a.balance), 0);
@@ -36,6 +36,11 @@ function Dashboard() {
   const thisMonthTx = tx.filter((t) => new Date(t.occurred_on) >= monthStart && new Date(t.occurred_on) <= monthEnd);
   const monthIncome = thisMonthTx.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
   const monthExpense = thisMonthTx.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
+  const monthNet = monthIncome - monthExpense;
+  const allocatedSavings = savingsGoals.reduce((sum, goal) => sum + Number(goal.saved_amount), 0);
+  const savingsBalance = accounts.filter((account) => account.type === "savings").reduce((sum, account) => sum + Number(account.balance), 0);
+  const unallocatedSavings = savingsBalance - allocatedSavings;
+  const recentActivity = tx.slice(0, 5);
 
   const forecast = computeForecast({
     accountsBalance: totalBalance,
@@ -74,14 +79,51 @@ function Dashboard() {
     <>
       <PageHeader title="Dashboard" subtitle={format(now, "EEEE, MMMM d")} />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="flex flex-col">
+      <div className="order-1 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Total balance" value={formatNGN(totalBalance)} sub={`${accounts.length} accounts`} accent />
         <StatCard label="Total bank balance" value={formatNGN(totalBankBalance)} sub={`${bankAccounts.length} bank ${bankAccounts.length === 1 ? "account" : "accounts"}`} />
         <StatCard label="Income this month" value={formatNGN(monthIncome)} icon={<ArrowUpRight className="text-success h-4 w-4" />} />
         <StatCard label="Spent this month" value={formatNGN(monthExpense)} icon={<ArrowDownRight className="text-destructive h-4 w-4" />} />
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="order-2 mt-6 grid gap-4 lg:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
+          <h2 className="font-semibold mb-4">{format(now, "MMMM")} overview</h2>
+          <div className="space-y-3">
+            <OverviewRow label="Income" value={formatNGN(monthIncome)} tone="success" />
+            <OverviewRow label="Expenses" value={formatNGN(monthExpense)} tone="destructive" />
+            <OverviewRow label="Net cash flow" value={formatNGN(monthNet)} tone={monthNet >= 0 ? "success" : "destructive"} />
+            <OverviewRow label="Current balance" value={formatNGN(totalBalance)} />
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 rounded-2xl border border-border bg-surface p-5 shadow-soft">
+          <h2 className="font-semibold mb-4">Recent activity</h2>
+          {recentActivity.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">No transactions yet.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {recentActivity.map((item: any) => (
+                <li key={item.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                  <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${item.type === "income" ? "bg-success/15 text-success" : item.type.startsWith("transfer_") ? "bg-primary-soft text-primary" : "bg-destructive/10 text-destructive"}`}>
+                    {item.type === "income" ? <ArrowUpRight className="h-4 w-4" /> : item.type.startsWith("transfer_") ? <ArrowLeftRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">{item.description || item.categories?.name || "Transaction"}</div>
+                    <div className="text-xs text-muted-foreground">{format(new Date(item.occurred_on), "MMM d")} {item.accounts?.name ? `· ${item.accounts.name}` : ""}</div>
+                  </div>
+                  <div className={`num text-sm font-semibold ${item.type === "income" ? "text-success" : item.type.startsWith("transfer_") ? "text-primary" : ""}`}>
+                    {item.type === "income" || item.type === "transfer_in" ? "+" : "-"}{formatNGN(item.amount)}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      <div className="order-4 mt-6 grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-2xl border border-border bg-surface p-5 shadow-soft">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold">Forecast for {format(now, "MMMM")}</h2>
@@ -145,7 +187,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="order-3 mt-6 grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
           <h2 className="font-semibold mb-4">Last 6 months</h2>
           <ResponsiveContainer width="100%" height={220}>
@@ -160,30 +202,37 @@ function Dashboard() {
         </div>
 
         <div className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
-          <h2 className="font-semibold mb-4">Budget progress</h2>
-          {budgets.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">No budgets set yet.</p>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold">Allocated savings</h2>
+            <PiggyBank className="h-4 w-4 text-primary" />
+          </div>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <ForecastRow label="Allocated to goals" value={formatNGN(allocatedSavings)} highlight />
+            <ForecastRow label="Still unallocated" value={formatNGN(unallocatedSavings)} />
+          </div>
+          {savingsGoals.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">No savings goals yet.</p>
           ) : (
             <ul className="space-y-3">
-              {budgets.map((b: any) => {
-                const spent = thisMonthTx.filter((t) => t.category_id === b.category_id && t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
-                const pct = Math.min(100, (spent / Number(b.amount)) * 100);
-                const over = spent > Number(b.amount);
+              {savingsGoals.slice(0, 5).map((goal) => {
+                const target = Number(goal.target_amount || 0);
+                const pct = target > 0 ? Math.min(100, (Number(goal.saved_amount) / target) * 100) : 0;
                 return (
-                  <li key={b.id}>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full" style={{ background: b.categories?.color }} /> {b.categories?.name}</span>
-                      <span className="num text-muted-foreground">{formatNGN(spent)} / {formatNGN(b.amount)}</span>
+                  <li key={goal.id}>
+                    <div className="flex items-center justify-between gap-3 text-sm mb-1">
+                      <span className="flex min-w-0 items-center gap-2"><span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: goal.color }} /><span className="truncate">{goal.name}</span></span>
+                      <span className="num shrink-0 text-muted-foreground">{formatNGN(goal.saved_amount, { compact: true })}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-secondary overflow-hidden">
-                      <div className="h-full transition-all" style={{ width: pct + "%", background: over ? "var(--destructive)" : b.categories?.color ?? "var(--primary)" }} />
-                    </div>
+                    {target > 0 && <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                      <div className="h-full transition-all" style={{ width: pct + "%", background: goal.color }} />
+                    </div>}
                   </li>
                 );
               })}
             </ul>
           )}
         </div>
+      </div>
       </div>
     </>
   );
@@ -198,6 +247,15 @@ function StatCard({ label, value, sub, icon, accent }: { label: string; value: s
       </div>
       <div className="num mt-2 text-3xl font-bold">{value}</div>
       {sub && <div className={`text-xs mt-1 ${accent ? "text-background/60" : "text-muted-foreground"}`}>{sub}</div>}
+    </div>
+  );
+}
+
+function OverviewRow({ label, value, tone }: { label: string; value: string; tone?: "success" | "destructive" }) {
+  return (
+    <div className="flex items-center justify-between gap-3 text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={`num font-semibold ${tone === "success" ? "text-success" : tone === "destructive" ? "text-destructive" : ""}`}>{value}</span>
     </div>
   );
 }
