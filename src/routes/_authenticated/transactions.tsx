@@ -155,8 +155,10 @@ function TxDialog({ onClose, accounts, categories, transaction }: { onClose: () 
   const [description, setDescription] = useState(transaction?.description ?? "");
   const [occurred_on, setDate] = useState(transaction?.occurred_on ?? new Date().toISOString().slice(0, 10));
   const [saving, setSaving] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [createdCategories, setCreatedCategories] = useState<any[]>([]);
 
-  const filteredCats = categories.filter((c) => c.kind === type);
+  const filteredCats = [...categories, ...createdCategories].filter((c) => c.kind === type);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,14 +205,67 @@ function TxDialog({ onClose, accounts, categories, transaction }: { onClose: () 
           </select>
         </Field>
         <Field label="Category">
-          <select value={category_id} onChange={(e) => setCategory(e.target.value)} className="finlo-input">
+          <select value={category_id} onChange={(e) => {
+            if (e.target.value === "__add_category__") setCategoryOpen(true);
+            else setCategory(e.target.value);
+          }} className="finlo-input">
             <option value="">None</option>
             {filteredCats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="__add_category__">+ Add category...</option>
           </select>
         </Field>
         <Field label="Description"><input value={description} onChange={(e) => setDescription(e.target.value)} className="finlo-input" placeholder="optional" /></Field>
         <Field label="Date"><input type="date" value={occurred_on} onChange={(e) => setDate(e.target.value)} className="finlo-input" /></Field>
         <ModalActions onClose={onClose} saving={saving} />
+      </form>
+      {categoryOpen && <QuickCategoryDialog
+        kind={type}
+        onClose={() => setCategoryOpen(false)}
+        onCreated={(category) => {
+          setCreatedCategories((current) => [...current, category]);
+          setCategory(category.id);
+          setCategoryOpen(false);
+        }}
+      />}
+    </Modal>
+  );
+}
+
+function QuickCategoryDialog({ kind, onClose, onCreated }: {
+  kind: "income" | "expense";
+  onClose: () => void;
+  onCreated: (category: any) => void;
+}) {
+  const qc = useQueryClient();
+  const [name, setName] = useState("");
+  const [color, setColor] = useState("#3b82f6");
+  const [saving, setSaving] = useState(false);
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+    const { data, error } = await supabase
+      .from("categories")
+      .insert({ user_id: user.id, name, kind, color })
+      .select()
+      .single();
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Category added");
+    qc.invalidateQueries({ queryKey: ["categories"] });
+    onCreated(data);
+  };
+
+  return (
+    <Modal onClose={onClose} title={`New ${kind} category`}>
+      <form onSubmit={save} className="space-y-3">
+        <Field label="Name"><input required autoFocus value={name} onChange={(e) => setName(e.target.value)} className="finlo-input" /></Field>
+        <Field label="Color">
+          <input aria-label="Category color" type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-10 w-10 cursor-pointer rounded border border-border bg-surface p-1" />
+        </Field>
+        <ModalActions onClose={onClose} saving={saving} label="Add category" />
       </form>
     </Modal>
   );
