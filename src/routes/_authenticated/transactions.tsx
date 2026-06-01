@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/AppSidebar";
 import { Modal, Field, ModalActions, EmptyState, BtnStyles } from "./accounts";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/transactions")({
   head: () => ({ meta: [{ title: "Transactions — Finlo" }] }),
@@ -26,6 +26,7 @@ function TxPage() {
   });
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
 
   const filtered = useMemo(() => filter === "all" ? tx : tx.filter((t) => t.type === filter), [tx, filter]);
@@ -52,7 +53,10 @@ function TxPage() {
       <PageHeader
         title="Transactions"
         subtitle={`${tx.length} entries`}
-        action={<button onClick={() => setOpen(true)} className="btn-primary"><Plus className="h-4 w-4" /> Add</button>}
+        action={<div className="flex gap-2">
+          <button onClick={() => setTransferOpen(true)} className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-secondary inline-flex items-center gap-2"><ArrowLeftRight className="h-4 w-4" /> Transfer</button>
+          <button onClick={() => setOpen(true)} className="btn-primary"><Plus className="h-4 w-4" /> Add</button>
+        </div>}
       />
 
       <div className="flex gap-2 mb-4">
@@ -68,8 +72,8 @@ function TxPage() {
           <ul className="divide-y divide-border">
             {filtered.map((t: any) => (
               <li key={t.id} className="flex items-center gap-4 px-4 py-3 hover:bg-secondary/40">
-                <div className={`grid h-9 w-9 place-items-center rounded-lg ${t.type === "income" ? "bg-success/15 text-success" : "bg-destructive/10 text-destructive"}`}>
-                  {t.type === "income" ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                <div className={`grid h-9 w-9 place-items-center rounded-lg ${t.type === "income" ? "bg-success/15 text-success" : t.type.startsWith("transfer_") ? "bg-primary-soft text-primary" : "bg-destructive/10 text-destructive"}`}>
+                  {t.type === "income" ? <ArrowUpRight className="h-4 w-4" /> : t.type.startsWith("transfer_") ? <ArrowLeftRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{t.description || t.categories?.name || "—"}</div>
@@ -79,16 +83,69 @@ function TxPage() {
                     {t.categories?.name && <span>· {t.categories.name}</span>}
                   </div>
                 </div>
-                <div className={`num font-semibold ${t.type === "income" ? "text-success" : ""}`}>{t.type === "income" ? "+" : "-"}{formatNGN(t.amount)}</div>
-                <button onClick={() => remove(t.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                <div className={`num font-semibold ${t.type === "income" ? "text-success" : t.type.startsWith("transfer_") ? "text-primary" : ""}`}>{t.type === "income" || t.type === "transfer_in" ? "+" : "-"}{formatNGN(t.amount)}</div>
+                {!t.type.startsWith("transfer_") && <button onClick={() => remove(t.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>}
               </li>
             ))}
           </ul>
         </div>
       )}
       {open && <TxDialog onClose={() => setOpen(false)} accounts={accounts} categories={categories} />}
+      {transferOpen && <TransferDialog onClose={() => setTransferOpen(false)} accounts={accounts} />}
       <BtnStyles />
     </>
+  );
+}
+
+function TransferDialog({ onClose, accounts }: { onClose: () => void; accounts: any[] }) {
+  const qc = useQueryClient();
+  const [from, setFrom] = useState(accounts[0]?.id ?? "");
+  const [to, setTo] = useState(accounts[1]?.id ?? "");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [occurred_on, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [saving, setSaving] = useState(false);
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (accounts.length < 2) return toast.error("Add at least two accounts first");
+    if (from === to) return toast.error("Choose two different accounts");
+    setSaving(true);
+    const { error } = await supabase.rpc("transfer_funds", {
+      p_from_account_id: from,
+      p_to_account_id: to,
+      p_amount: Number(amount),
+      p_description: description || null,
+      p_occurred_on: occurred_on,
+    });
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else { toast.success("Transfer completed"); qc.invalidateQueries(); onClose(); }
+  };
+
+  return (
+    <Modal onClose={onClose} title="Transfer funds">
+      {accounts.length < 2 ? (
+        <p className="text-sm text-muted-foreground">Add at least two accounts before making a transfer.</p>
+      ) : (
+        <form onSubmit={save} className="space-y-3">
+          <Field label="From account">
+            <select required value={from} onChange={(e) => setFrom(e.target.value)} className="finlo-input">
+              {accounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({formatNGN(a.balance)})</option>)}
+            </select>
+          </Field>
+          <Field label="To account">
+            <select required value={to} onChange={(e) => setTo(e.target.value)} className="finlo-input">
+              {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Amount (₦)"><input required type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="finlo-input" /></Field>
+          <Field label="Description"><input value={description} onChange={(e) => setDescription(e.target.value)} className="finlo-input" placeholder="optional" /></Field>
+          <Field label="Date"><input required type="date" value={occurred_on} onChange={(e) => setDate(e.target.value)} className="finlo-input" /></Field>
+          <ModalActions onClose={onClose} saving={saving} label="Transfer" />
+        </form>
+      )}
+    </Modal>
   );
 }
 

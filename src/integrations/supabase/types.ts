@@ -330,7 +330,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      transfer_funds: {
+        Args: {
+          p_amount: number
+          p_description?: string | null
+          p_from_account_id: string
+          p_occurred_on?: string
+          p_to_account_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
