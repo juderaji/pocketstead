@@ -81,7 +81,7 @@ function Dashboard() {
 
       <div className="flex flex-col">
       <div className="order-1 mb-4 grid gap-3 sm:mb-6 sm:gap-4 lg:grid-cols-[1.65fr_0.85fr]">
-        <div className="relative min-h-[210px] overflow-hidden rounded-xl bg-primary shadow-soft sm:min-h-[280px] sm:rounded-2xl lg:min-h-[320px]">
+        <div className="relative min-h-[210px] overflow-hidden rounded-xl bg-primary shadow-soft sm:min-h-[280px] sm:rounded-2xl lg:min-h-[260px]">
           <img src="/bank-hall.jpg" alt="A modern bank hall" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/75 via-primary/20 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-6">
