@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/AppSidebar";
 import { Modal, Field, ModalActions, EmptyState, BtnStyles } from "./accounts";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight, ArrowLeftRight, Pencil } from "lucide-react";
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, ArrowLeftRight, Pencil, Download, ChevronDown, FileText, FileSpreadsheet } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/_authenticated/transactions")({
   head: () => ({ meta: [{ title: "Transactions | Pocketstead" }] }),
@@ -49,7 +50,8 @@ function TxPage() {
       <PageHeader
         title="Transactions"
         subtitle={`${tx.length} entries`}
-        action={<div className="grid grid-cols-2 gap-2 sm:flex">
+        action={<div className="grid grid-cols-3 gap-2 sm:flex">
+          <ExportMenu transactions={filtered} filter={filter} />
           <button onClick={() => setTransferOpen(true)} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium hover:bg-secondary sm:gap-2 sm:px-4 sm:text-sm"><ArrowLeftRight className="h-4 w-4" /> Transfer</button>
           <button onClick={() => setOpen(true)} className="btn-primary"><Plus className="h-4 w-4" /> Add</button>
         </div>}
@@ -96,6 +98,137 @@ function TxPage() {
       <BtnStyles />
     </>
   );
+}
+
+function ExportMenu({ transactions, filter }: { transactions: any[]; filter: "all" | "income" | "expense" }) {
+  const exportCSV = () => {
+    if (transactions.length === 0) return toast.error("There are no transactions to export");
+    const rows = transactions.map(toExportRow);
+    const csv = [
+      ["Date", "Type", "Description", "Account", "Category", "Amount (NGN)"],
+      ...rows.map((row) => [row.date, row.type, row.description, row.account, row.category, row.amount]),
+    ].map((row) => row.map(csvCell).join(",")).join("\r\n");
+    downloadBlob(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }), exportFilename(filter, "csv"));
+    toast.success("CSV exported");
+  };
+
+  const exportPDF = () => {
+    if (transactions.length === 0) return toast.error("There are no transactions to export");
+    downloadBlob(createTransactionsPDF(transactions, filter), exportFilename(filter, "pdf"));
+    toast.success("PDF exported");
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium hover:bg-secondary sm:gap-2 sm:px-4 sm:text-sm">
+          <Download className="h-4 w-4" /> Export <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-44">
+        <DropdownMenuItem onSelect={exportCSV} className="gap-2">
+          <FileSpreadsheet className="h-4 w-4" /> Export as CSV
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={exportPDF} className="gap-2">
+          <FileText className="h-4 w-4" /> Export as PDF
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function toExportRow(transaction: any) {
+  return {
+    date: transaction.occurred_on ?? "",
+    type: String(transaction.type ?? "").replace("_", " "),
+    description: transaction.description || transaction.categories?.name || "-",
+    account: transaction.accounts?.name || "-",
+    category: transaction.categories?.name || "-",
+    amount: `${transaction.type === "income" || transaction.type === "transfer_in" ? "" : "-"}${Number(transaction.amount ?? 0).toFixed(2)}`,
+  };
+}
+
+function csvCell(value: string) {
+  return `"${String(value).replace(/"/g, '""')}"`;
+}
+
+function exportFilename(filter: string, extension: "csv" | "pdf") {
+  const suffix = filter === "all" ? "" : `-${filter}`;
+  return `pocketstead-transactions${suffix}-${new Date().toISOString().slice(0, 10)}.${extension}`;
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function createTransactionsPDF(transactions: any[], filter: string) {
+  const rows = transactions.map(toExportRow);
+  const pageRows = 42;
+  const pages = Array.from({ length: Math.ceil(rows.length / pageRows) }, (_, index) => rows.slice(index * pageRows, (index + 1) * pageRows));
+  const objects: string[] = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    `<< /Type /Pages /Kids [${pages.map((_, index) => `${4 + index * 2} 0 R`).join(" ")}] /Count ${pages.length} >>`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+
+  pages.forEach((page, index) => {
+    const pageNumber = index + 1;
+    const lines = [
+      "Pocketstead Transactions",
+      `Filter: ${filter} | Exported: ${new Date().toLocaleDateString()} | Page ${pageNumber} of ${pages.length}`,
+      "",
+      "Date       Type          Description                  Account              Category             Amount (NGN)",
+      "----------------------------------------------------------------------------------------------------------",
+      ...page.map((row) => [
+        pdfColumn(row.date, 10),
+        pdfColumn(row.type, 13),
+        pdfColumn(row.description, 28),
+        pdfColumn(row.account, 20),
+        pdfColumn(row.category, 20),
+        row.amount,
+      ].join(" ")),
+    ];
+    const stream = `BT\n/F1 9 Tf\n12 TL\n36 806 Td\n${lines.map((line) => `(${pdfText(line)}) Tj T*`).join("\n")}\nET`;
+    const pageId = 4 + index * 2;
+    const contentId = pageId + 1;
+    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentId} 0 R >>`);
+    objects.push(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+  });
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(pdf.length);
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xref = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  pdf += offsets.slice(1).map((offset) => `${String(offset).padStart(10, "0")} 00000 n \n`).join("");
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return new Blob([pdf], { type: "application/pdf" });
+}
+
+function pdfColumn(value: string, length: number) {
+  const clean = asciiText(value);
+  return clean.length > length ? `${clean.slice(0, length - 1)}~` : clean.padEnd(length);
+}
+
+function pdfText(value: string) {
+  return asciiText(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
+}
+
+function asciiText(value: string) {
+  return String(value)
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]/g, "");
 }
 
 function TransferDialog({ onClose, accounts, transactions, transfer }: { onClose: () => void; accounts: any[]; transactions: any[]; transfer?: any }) {
