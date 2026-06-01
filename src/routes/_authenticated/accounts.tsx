@@ -1,0 +1,145 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { accountsQuery } from "@/lib/queries";
+import { supabase } from "@/integrations/supabase/client";
+import { formatNGN } from "@/lib/format";
+import { PageHeader } from "@/components/AppSidebar";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Plus, Wallet, Building2, CreditCard, PiggyBank, Trash2 } from "lucide-react";
+
+export const Route = createFileRoute("/_authenticated/accounts")({
+  head: () => ({ meta: [{ title: "Accounts — Finlo" }] }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(accountsQuery),
+  component: AccountsPage,
+});
+
+const typeIcons: Record<string, any> = { cash: Wallet, bank: Building2, card: CreditCard, savings: PiggyBank };
+
+function AccountsPage() {
+  const { data: accounts } = useSuspenseQuery(accountsQuery);
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const total = accounts.reduce((s, a) => s + Number(a.balance), 0);
+
+  const remove = async (id: string) => {
+    if (!confirm("Archive this account?")) return;
+    const { error } = await supabase.from("accounts").update({ archived: true }).eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Archived"); qc.invalidateQueries({ queryKey: ["accounts"] }); }
+  };
+
+  return (
+    <>
+      <PageHeader
+        title="Accounts"
+        subtitle={`${formatNGN(total)} across ${accounts.length} accounts`}
+        action={<button onClick={() => setOpen(true)} className="btn-primary"><Plus className="h-4 w-4" /> New account</button>}
+      />
+      {accounts.length === 0 ? (
+        <EmptyState text="Add your first account to start tracking." onAction={() => setOpen(true)} />
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {accounts.map((a) => {
+            const Icon = typeIcons[a.type] ?? Wallet;
+            return (
+              <div key={a.id} className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
+                <div className="flex items-start justify-between">
+                  <div className="grid h-10 w-10 place-items-center rounded-lg" style={{ background: a.color + "20", color: a.color }}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <button onClick={() => remove(a.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                </div>
+                <div className="mt-4 text-sm text-muted-foreground capitalize">{a.type}</div>
+                <div className="font-semibold">{a.name}</div>
+                <div className="num mt-2 text-2xl font-bold">{formatNGN(a.balance)}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {open && <AccountDialog onClose={() => setOpen(false)} />}
+      <BtnStyles />
+    </>
+  );
+}
+
+function AccountDialog({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient();
+  const [name, setName] = useState("");
+  const [type, setType] = useState("cash");
+  const [balance, setBalance] = useState("0");
+  const [color, setColor] = useState("#3b82f6");
+  const [saving, setSaving] = useState(false);
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+    const { error } = await supabase.from("accounts").insert({ user_id: user.id, name, type, balance: Number(balance), color });
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else { toast.success("Account added"); qc.invalidateQueries({ queryKey: ["accounts"] }); onClose(); }
+  };
+
+  return (
+    <Modal onClose={onClose} title="New account">
+      <form onSubmit={save} className="space-y-3">
+        <Field label="Name"><input required value={name} onChange={(e) => setName(e.target.value)} className="finlo-input" placeholder="e.g. GTBank Savings" /></Field>
+        <Field label="Type">
+          <select value={type} onChange={(e) => setType(e.target.value)} className="finlo-input">
+            <option value="cash">Cash</option><option value="bank">Bank</option><option value="card">Card</option><option value="savings">Savings</option>
+          </select>
+        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Starting balance"><input type="number" step="0.01" value={balance} onChange={(e) => setBalance(e.target.value)} className="finlo-input" /></Field>
+          <Field label="Color"><input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="finlo-input h-10" /></Field>
+        </div>
+        <ModalActions onClose={onClose} saving={saving} />
+      </form>
+    </Modal>
+  );
+}
+
+export function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-30 grid place-items-center bg-foreground/40 p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl bg-surface p-6 shadow-lift" onClick={(e) => e.stopPropagation()}>
+        <h2 className="font-display text-lg font-bold mb-4">{title}</h2>
+        {children}
+      </div>
+    </div>
+  );
+}
+export function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1.5">{label}</span>{children}</label>;
+}
+export function ModalActions({ onClose, saving, label = "Save" }: { onClose: () => void; saving: boolean; label?: string }) {
+  return (
+    <div className="flex justify-end gap-2 pt-2">
+      <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary">Cancel</button>
+      <button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
+        {saving ? "Saving..." : label}
+      </button>
+    </div>
+  );
+}
+
+export function EmptyState({ text, onAction }: { text: string; onAction?: () => void }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
+      <p className="text-muted-foreground">{text}</p>
+      {onAction && <button onClick={onAction} className="btn-primary mt-4 mx-auto"><Plus className="h-4 w-4" /> Add now</button>}
+    </div>
+  );
+}
+
+export function BtnStyles() {
+  return <style>{`
+    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;border-radius:.5rem;background:var(--primary);color:var(--primary-foreground);padding:.5rem 1rem;font-size:.875rem;font-weight:500}
+    .btn-primary:hover{opacity:.9}
+    .finlo-input{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:.5rem;padding:.55rem .75rem;font-size:.9rem;outline:none}
+    .finlo-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+  `}</style>;
+}
