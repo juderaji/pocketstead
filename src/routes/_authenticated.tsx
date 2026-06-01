@@ -25,7 +25,7 @@ function AuthLoading() {
 function AuthLayout() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex min-h-screen bg-surface md:h-screen md:overflow-hidden">
+      <div className="flex min-h-screen gap-3 bg-surface md:h-screen md:overflow-hidden md:p-3">
         <AppSidebar />
         <main className="min-w-0 flex-1 bg-surface pb-20 md:h-screen md:overflow-y-auto md:pb-0">
           <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6 md:px-7 md:py-8 lg:px-9">
