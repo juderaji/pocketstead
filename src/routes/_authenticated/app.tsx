@@ -28,6 +28,8 @@ function Dashboard() {
   });
 
   const totalBalance = accounts.reduce((s, a) => s + Number(a.balance), 0);
+  const bankAccounts = accounts.filter((account) => account.type === "bank");
+  const totalBankBalance = bankAccounts.reduce((sum, account) => sum + Number(account.balance), 0);
   const now = new Date();
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
@@ -72,8 +74,9 @@ function Dashboard() {
     <>
       <PageHeader title="Dashboard" subtitle={format(now, "EEEE, MMMM d")} />
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Total balance" value={formatNGN(totalBalance)} sub={`${accounts.length} accounts`} accent />
+        <StatCard label="Total bank balance" value={formatNGN(totalBankBalance)} sub={`${bankAccounts.length} bank ${bankAccounts.length === 1 ? "account" : "accounts"}`} />
         <StatCard label="Income this month" value={formatNGN(monthIncome)} icon={<ArrowUpRight className="text-success h-4 w-4" />} />
         <StatCard label="Spent this month" value={formatNGN(monthExpense)} icon={<ArrowDownRight className="text-destructive h-4 w-4" />} />
       </div>
