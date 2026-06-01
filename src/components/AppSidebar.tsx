@@ -2,7 +2,7 @@ import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCart, ListChecks, Settings, LogOut, PiggyBank, Menu, X, PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PocketsteadLogo, PocketsteadMark } from "@/components/PocketsteadLogo";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 const navItems = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard },
@@ -19,7 +19,7 @@ const navItems = [
 export function AppSidebar() {
   const loc = useLocation();
   const router = useRouter();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const logout = async () => {
     await supabase.auth.signOut();
     router.navigate({ to: "/" });
@@ -35,34 +35,51 @@ export function AppSidebar() {
         {navItems.map((it) => {
           const active = loc.pathname === it.to || (it.to !== "/app" && loc.pathname.startsWith(it.to));
           return (
-            <Link
-              key={it.to}
-              to={it.to}
-              title={it.label}
-              aria-label={it.label}
-              className={`flex h-11 items-center rounded-xl transition-colors ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"} ${
-                active
-                  ? "bg-white/22 text-white shadow-soft"
-                  : "text-white/70 hover:bg-white/12 hover:text-white"
-              }`}
-            >
-              <it.icon className="h-4.5 w-4.5" />
-              {expanded && <span className="text-sm font-medium">{it.label}</span>}
-            </Link>
+            <SidebarTooltip key={it.to} label={it.label} show={!expanded}>
+              <Link
+                to={it.to}
+                aria-label={it.label}
+                className={`flex h-11 items-center rounded-xl transition-colors ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"} ${
+                  active
+                    ? "bg-white/22 text-white shadow-soft"
+                    : "text-white/70 hover:bg-white/12 hover:text-white"
+                }`}
+              >
+                <it.icon className="h-4.5 w-4.5" />
+                {expanded && <span className="text-sm font-medium">{it.label}</span>}
+              </Link>
+            </SidebarTooltip>
           );
         })}
       </nav>
       <div className="space-y-1 px-3 py-4">
-        <button onClick={() => setExpanded((open) => !open)} title={expanded ? "Collapse sidebar" : "Expand sidebar"} aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"} className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
-          {expanded ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeftOpen className="h-4.5 w-4.5" />}
-          {expanded && <span className="text-sm font-medium">Collapse</span>}
-        </button>
-        <button onClick={logout} title="Sign out" aria-label="Sign out" className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
-          <LogOut className="h-4.5 w-4.5" />
-          {expanded && <span className="text-sm font-medium">Sign out</span>}
-        </button>
+        <SidebarTooltip label={expanded ? "Collapse sidebar" : "Expand sidebar"} show={!expanded}>
+          <button onClick={() => setExpanded((open) => !open)} aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"} className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
+            {expanded ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeftOpen className="h-4.5 w-4.5" />}
+            {expanded && <span className="text-sm font-medium">Minimize</span>}
+          </button>
+        </SidebarTooltip>
+        <SidebarTooltip label="Sign out" show={!expanded}>
+          <button onClick={logout} aria-label="Sign out" className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
+            <LogOut className="h-4.5 w-4.5" />
+            {expanded && <span className="text-sm font-medium">Sign out</span>}
+          </button>
+        </SidebarTooltip>
       </div>
     </aside>
+  );
+}
+
+function SidebarTooltip({ label, show, children }: { label: string; show: boolean; children: ReactNode }) {
+  return (
+    <div className="group relative">
+      {children}
+      {show && (
+        <span className="pointer-events-none absolute left-[calc(100%+0.75rem)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-lg bg-foreground px-2.5 py-1.5 text-xs font-medium text-background opacity-0 shadow-lift transition-opacity group-hover:opacity-100">
+          {label}
+        </span>
+      )}
+    </div>
   );
 }
 
