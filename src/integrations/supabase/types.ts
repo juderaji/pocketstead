@@ -330,6 +330,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_category: {
+        Args: {
+          p_category_id: string
+        }
+        Returns: undefined
+      }
       delete_transaction: {
         Args: {
           p_transaction_id: string

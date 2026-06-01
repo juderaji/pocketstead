@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/AppSidebar";
 import { Modal, Field, ModalActions, BtnStyles } from "./accounts";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — Finlo" }] }),
@@ -22,6 +22,7 @@ function SettingsPage() {
   const [{ data: categories }, { data: profile }] = useSuspenseQueries({ queries: [categoriesQuery, profileQuery] });
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
   const [name, setName] = useState(profile.display_name ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -34,8 +35,8 @@ function SettingsPage() {
   };
 
   const removeCat = async (id: string) => {
-    if (!confirm("Delete this category? Transactions will be uncategorized.")) return;
-    const { error } = await supabase.from("categories").delete().eq("id", id);
+    if (!confirm("Delete this category? Its transactions will move to Other.")) return;
+    const { error } = await supabase.rpc("delete_category", { p_category_id: id });
     if (error) toast.error(error.message);
     else { toast.success("Deleted"); qc.invalidateQueries(); }
   };
@@ -64,23 +65,25 @@ function SettingsPage() {
                 <span className="h-3 w-3 rounded-full" style={{ background: c.color }} />
                 <span className="flex-1 font-medium">{c.name}</span>
                 <span className="text-xs uppercase text-muted-foreground">{c.kind}</span>
-                <button onClick={() => removeCat(c.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                <button onClick={() => setEditing(c)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${c.name}`}><Pencil className="h-4 w-4" /></button>
+                <button onClick={() => removeCat(c.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Delete ${c.name}`}><Trash2 className="h-4 w-4" /></button>
               </li>
             ))}
           </ul>
         </section>
       </div>
       {open && <CategoryDialog onClose={() => setOpen(false)} />}
+      {editing && <CategoryDialog category={editing} onClose={() => setEditing(null)} />}
       <BtnStyles />
     </>
   );
 }
 
-function CategoryDialog({ onClose }: { onClose: () => void }) {
+function CategoryDialog({ onClose, category }: { onClose: () => void; category?: any }) {
   const qc = useQueryClient();
-  const [name, setName] = useState("");
-  const [kind, setKind] = useState<"income" | "expense">("expense");
-  const [color, setColor] = useState("#3b82f6");
+  const [name, setName] = useState(category?.name ?? "");
+  const [kind, setKind] = useState<"income" | "expense">(category?.kind ?? "expense");
+  const [color, setColor] = useState(category?.color ?? "#3b82f6");
   const [saving, setSaving] = useState(false);
 
   const save = async (e: React.FormEvent) => {
@@ -88,14 +91,16 @@ function CategoryDialog({ onClose }: { onClose: () => void }) {
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { error } = await supabase.from("categories").insert({ user_id: user.id, name, kind, color });
+    const { error } = category
+      ? await supabase.from("categories").update({ name, kind, color }).eq("id", category.id)
+      : await supabase.from("categories").insert({ user_id: user.id, name, kind, color });
     setSaving(false);
     if (error) toast.error(error.message);
-    else { toast.success("Added"); qc.invalidateQueries({ queryKey: ["categories"] }); onClose(); }
+    else { toast.success(category ? "Updated" : "Added"); qc.invalidateQueries(); onClose(); }
   };
 
   return (
-    <Modal onClose={onClose} title="New category">
+    <Modal onClose={onClose} title={category ? "Edit category" : "New category"}>
       <form onSubmit={save} className="space-y-3">
         <Field label="Name"><input required value={name} onChange={(e) => setName(e.target.value)} className="finlo-input" /></Field>
         <div className="grid grid-cols-2 gap-3">
