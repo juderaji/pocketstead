@@ -11,7 +11,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { startOfMonth, endOfMonth } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/budgets")({
-  head: () => ({ meta: [{ title: "Budgets — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Budgets | Pocketstead" }] }),
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(budgetsQuery),

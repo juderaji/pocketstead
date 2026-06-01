@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, Check, Repeat, CalendarClock } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/planned")({
-  head: () => ({ meta: [{ title: "Planned & Recurring — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Planned & Recurring | Pocketstead" }] }),
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(plannedQuery),

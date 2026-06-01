@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, ArrowUpRight, ArrowDownRight, ArrowLeftRight, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/transactions")({
-  head: () => ({ meta: [{ title: "Transactions — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Transactions | Pocketstead" }] }),
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(transactionsQuery),

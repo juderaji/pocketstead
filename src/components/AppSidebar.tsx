@@ -26,7 +26,7 @@ export function AppSidebar() {
       <div className="px-5 py-5 border-b border-sidebar-border">
         <Link to="/" className="flex items-center gap-2 font-display font-bold">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">F</span>
-          Finlo
+          Pocketstead
         </Link>
       </div>
       <nav className="flex-1 p-3 space-y-1">

@@ -10,7 +10,7 @@ import { addMonths, eachDayOfInterval, endOfMonth, format, getDate, isSameDay, i
 import { computeForecast } from "@/lib/forecast";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
-  head: () => ({ meta: [{ title: "Calendar — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Calendar | Pocketstead" }] }),
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(recurringQuery),

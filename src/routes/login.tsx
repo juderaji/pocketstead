@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { getPublicSiteUrl } from "@/integrations/supabase/config";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign in — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Sign in | Pocketstead" }] }),
   component: LoginPage,
 });
 
@@ -39,7 +39,7 @@ function LoginPage() {
     if (res.error) toast.error("Google sign-in failed");
   };
 
-  return <AuthShell title="Welcome back" subtitle="Sign in to your Finlo account">
+  return <AuthShell title="Welcome back" subtitle="Sign in to your Pocketstead account">
     <button onClick={onGoogle} className="w-full rounded-lg border border-border bg-surface py-2.5 font-medium hover:bg-surface-muted flex items-center justify-center gap-2">
       <GoogleIcon /> Continue with Google
     </button>
@@ -63,7 +63,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold justify-center mb-8">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">F</span>
-          Finlo
+          Pocketstead
         </Link>
         <div className="rounded-2xl border border-border bg-surface p-8 shadow-lift">
           <h1 className="text-2xl font-bold">{title}</h1>

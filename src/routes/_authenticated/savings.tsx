@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Minus, Pencil, Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/savings")({
-  head: () => ({ meta: [{ title: "Savings goals — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Savings goals | Pocketstead" }] }),
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(accountsQuery),

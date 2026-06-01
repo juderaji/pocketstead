@@ -4,7 +4,7 @@ import { ArrowRight, Calendar, LineChart, ShoppingCart, Wallet, Sparkles } from 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Finlo | A personal finance operating system" },
+      { title: "Pocketstead | A personal finance operating system" },
       { name: "description", content: "More than budgeting. Plan purchases, forecast your runway, and never miss a bill." },
     ],
   }),
@@ -18,7 +18,7 @@ function Landing() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">F</span>
-            Finlo
+            Pocketstead
           </Link>
           <nav className="flex items-center gap-3 text-sm">
             <Link to="/login" className="text-muted-foreground hover:text-foreground px-3 py-2">Sign in</Link>
@@ -38,7 +38,7 @@ function Landing() {
           <span className="text-primary">predicted</span> not just tracked.
         </h1>
         <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-          Finlo is a complete personal finance OS. Plan purchases, forecast your runway, and know
+          Pocketstead is a complete personal finance OS. Plan purchases, forecast your runway, and know
           exactly when your balance will run thin, before it does.
         </p>
         <div className="mt-10 flex flex-wrap gap-3">
@@ -69,7 +69,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border/60 py-8 text-center text-sm text-muted-foreground">
-        Finlo · personal finance OS
+        Pocketstead · personal finance OS
       </footer>
     </div>
   );

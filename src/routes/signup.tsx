@@ -7,7 +7,7 @@ import { AuthShell, Field, Divider, GoogleIcon } from "./login";
 import { getPublicSiteUrl } from "@/integrations/supabase/config";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: [{ title: "Create your Finlo account" }] }),
+  head: () => ({ meta: [{ title: "Create your Pocketstead account" }] }),
   component: SignupPage,
 });
 

@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Plus, Wallet, Building2, CreditCard, PiggyBank, Trash2, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/accounts")({
-  head: () => ({ meta: [{ title: "Accounts — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Accounts | Pocketstead" }] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(accountsQuery),
   component: AccountsPage,
 });

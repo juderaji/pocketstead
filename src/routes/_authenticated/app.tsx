@@ -9,7 +9,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { endOfMonth, startOfMonth, format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/app")({
-  head: () => ({ meta: [{ title: "Dashboard — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Dashboard | Pocketstead" }] }),
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(accountsQuery),

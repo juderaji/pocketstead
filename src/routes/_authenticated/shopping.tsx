@@ -11,7 +11,7 @@ import { Plus, Trash2, Check, ShoppingBag } from "lucide-react";
 import { computeForecast, canAfford } from "@/lib/forecast";
 
 export const Route = createFileRoute("/_authenticated/shopping")({
-  head: () => ({ meta: [{ title: "Shopping — Finlo" }] }),
+  head: () => ({ meta: [{ title: "Shopping | Pocketstead" }] }),
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(shoppingQuery),

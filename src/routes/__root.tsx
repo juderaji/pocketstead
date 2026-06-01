@@ -66,9 +66,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Finlo | Your personal finance OS" },
-      { name: "description", content: "Budget, plan, forecast, and shop smarter. Finlo is a personal finance operating system for naira spenders." },
-      { property: "og:title", content: "Finlo | Personal finance OS" },
+      { title: "Pocketstead | Your personal finance OS" },
+      { name: "description", content: "Budget, plan, forecast, and shop smarter. Pocketstead is a personal finance operating system for naira spenders." },
+      { property: "og:title", content: "Pocketstead | Personal finance OS" },
       { property: "og:description", content: "Budgeting, planning, forecasting, and shopping intelligence in one connected system." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
