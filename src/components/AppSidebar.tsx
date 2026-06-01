@@ -2,7 +2,8 @@ import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCart, ListChecks, Settings, LogOut, PiggyBank, Menu, X, PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PocketsteadLogo, PocketsteadMark } from "@/components/PocketsteadLogo";
-import { useState, type ReactNode } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useState, type ReactElement } from "react";
 
 const navItems = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard },
@@ -25,13 +26,14 @@ export function AppSidebar() {
     router.navigate({ to: "/" });
   };
   return (
+    <TooltipProvider delayDuration={150}>
     <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden bg-sidebar transition-[width] duration-300 md:flex ${expanded ? "w-56" : "w-20"}`}>
       <div className={`flex items-center px-3 py-5 ${expanded ? "justify-start" : "justify-center"}`}>
         <Link to="/" aria-label="Pocketstead home" className="font-display font-bold text-white">
           {expanded ? <PocketsteadLogo /> : <PocketsteadMark className="h-10 w-10 rounded-xl shadow-soft" />}
         </Link>
       </div>
-      <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-2">
+      <nav className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto px-3 py-2">
         {navItems.map((it) => {
           const active = loc.pathname === it.to || (it.to !== "/app" && loc.pathname.startsWith(it.to));
           return (
@@ -67,19 +69,17 @@ export function AppSidebar() {
         </SidebarTooltip>
       </div>
     </aside>
+    </TooltipProvider>
   );
 }
 
-function SidebarTooltip({ label, show, children }: { label: string; show: boolean; children: ReactNode }) {
+function SidebarTooltip({ label, show, children }: { label: string; show: boolean; children: ReactElement }) {
+  if (!show) return children;
   return (
-    <div className="group relative">
-      {children}
-      {show && (
-        <span className="pointer-events-none absolute left-[calc(100%+0.75rem)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-lg bg-foreground px-2.5 py-1.5 text-xs font-medium text-background opacity-0 shadow-lift transition-opacity group-hover:opacity-100">
-          {label}
-        </span>
-      )}
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side="right" sideOffset={10}>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 
