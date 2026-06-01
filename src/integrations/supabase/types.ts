@@ -283,6 +283,7 @@ export type Database = {
           description: string | null
           id: string
           occurred_on: string
+          transfer_id: string | null
           type: string
           user_id: string
         }
@@ -294,6 +295,7 @@ export type Database = {
           description?: string | null
           id?: string
           occurred_on?: string
+          transfer_id?: string | null
           type?: string
           user_id: string
         }
@@ -305,6 +307,7 @@ export type Database = {
           description?: string | null
           id?: string
           occurred_on?: string
+          transfer_id?: string | null
           type?: string
           user_id?: string
         }
@@ -342,6 +345,12 @@ export type Database = {
         }
         Returns: undefined
       }
+      delete_transfer: {
+        Args: {
+          p_transaction_id: string
+        }
+        Returns: undefined
+      }
       transfer_funds: {
         Args: {
           p_amount: number
@@ -361,6 +370,17 @@ export type Database = {
           p_occurred_on: string
           p_transaction_id: string
           p_type: string
+        }
+        Returns: undefined
+      }
+      update_transfer: {
+        Args: {
+          p_amount: number
+          p_description?: string | null
+          p_from_account_id: string
+          p_occurred_on?: string
+          p_to_account_id: string
+          p_transaction_id: string
         }
         Returns: undefined
       }

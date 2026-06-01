@@ -27,6 +27,7 @@ function TxPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [editingTransfer, setEditingTransfer] = useState<any | null>(null);
   const [editing, setEditing] = useState<any | null>(null);
   const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
 
@@ -36,7 +37,9 @@ function TxPage() {
     const t = tx.find((x) => x.id === id);
     if (!t) return;
     if (!confirm("Delete this transaction?")) return;
-    const { error } = await supabase.rpc("delete_transaction", { p_transaction_id: id });
+    const { error } = t.type.startsWith("transfer_")
+      ? await supabase.rpc("delete_transfer", { p_transaction_id: id })
+      : await supabase.rpc("delete_transaction", { p_transaction_id: id });
     if (error) toast.error(error.message);
     else { toast.success("Deleted"); qc.invalidateQueries(); }
   };
@@ -77,10 +80,10 @@ function TxPage() {
                   </div>
                 </div>
                 <div className={`num font-semibold ${t.type === "income" ? "text-success" : t.type.startsWith("transfer_") ? "text-primary" : ""}`}>{t.type === "income" || t.type === "transfer_in" ? "+" : "-"}{formatNGN(t.amount)}</div>
-                {!t.type.startsWith("transfer_") && <div className="flex gap-2">
-                  <button onClick={() => setEditing(t)} className="text-muted-foreground hover:text-primary" aria-label="Edit transaction"><Pencil className="h-4 w-4" /></button>
+                <div className="flex gap-2">
+                  <button onClick={() => t.type.startsWith("transfer_") ? setEditingTransfer(t) : setEditing(t)} className="text-muted-foreground hover:text-primary" aria-label={t.type.startsWith("transfer_") ? "Edit transfer" : "Edit transaction"}><Pencil className="h-4 w-4" /></button>
                   <button onClick={() => remove(t.id)} className="text-muted-foreground hover:text-destructive" aria-label="Delete transaction"><Trash2 className="h-4 w-4" /></button>
-                </div>}
+                </div>
               </li>
             ))}
           </ul>
@@ -88,19 +91,25 @@ function TxPage() {
       )}
       {open && <TxDialog onClose={() => setOpen(false)} accounts={accounts} categories={categories} />}
       {editing && <TxDialog transaction={editing} onClose={() => setEditing(null)} accounts={accounts} categories={categories} />}
-      {transferOpen && <TransferDialog onClose={() => setTransferOpen(false)} accounts={accounts} />}
+      {transferOpen && <TransferDialog onClose={() => setTransferOpen(false)} accounts={accounts} transactions={tx} />}
+      {editingTransfer && <TransferDialog transfer={editingTransfer} onClose={() => setEditingTransfer(null)} accounts={accounts} transactions={tx} />}
       <BtnStyles />
     </>
   );
 }
 
-function TransferDialog({ onClose, accounts }: { onClose: () => void; accounts: any[] }) {
+function TransferDialog({ onClose, accounts, transactions, transfer }: { onClose: () => void; accounts: any[]; transactions: any[]; transfer?: any }) {
   const qc = useQueryClient();
-  const [from, setFrom] = useState(accounts[0]?.id ?? "");
-  const [to, setTo] = useState(accounts[1]?.id ?? "");
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [occurred_on, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const pair = transfer?.transfer_id
+    ? transactions.find((candidate) => candidate.transfer_id === transfer.transfer_id && candidate.id !== transfer.id)
+    : undefined;
+  const outgoing = transfer?.type === "transfer_out" ? transfer : pair?.type === "transfer_out" ? pair : undefined;
+  const incoming = transfer?.type === "transfer_in" ? transfer : pair?.type === "transfer_in" ? pair : undefined;
+  const [from, setFrom] = useState(outgoing?.account_id ?? accounts[0]?.id ?? "");
+  const [to, setTo] = useState(incoming?.account_id ?? accounts[1]?.id ?? "");
+  const [amount, setAmount] = useState(transfer ? String(transfer.amount) : "");
+  const [description, setDescription] = useState(transfer?.description ?? "");
+  const [occurred_on, setDate] = useState(transfer?.occurred_on ?? new Date().toISOString().slice(0, 10));
   const [saving, setSaving] = useState(false);
 
   const save = async (e: React.FormEvent) => {
@@ -108,20 +117,23 @@ function TransferDialog({ onClose, accounts }: { onClose: () => void; accounts: 
     if (accounts.length < 2) return toast.error("Add at least two accounts first");
     if (from === to) return toast.error("Choose two different accounts");
     setSaving(true);
-    const { error } = await supabase.rpc("transfer_funds", {
-      p_from_account_id: from,
-      p_to_account_id: to,
-      p_amount: Number(amount),
-      p_description: description || null,
-      p_occurred_on: occurred_on,
-    });
+    const args = {
+        p_from_account_id: from,
+        p_to_account_id: to,
+        p_amount: Number(amount),
+        p_description: description || null,
+        p_occurred_on: occurred_on,
+      };
+    const { error } = transfer
+      ? await supabase.rpc("update_transfer", { p_transaction_id: transfer.id, ...args })
+      : await supabase.rpc("transfer_funds", args);
     setSaving(false);
     if (error) toast.error(error.message);
-    else { toast.success("Transfer completed"); qc.invalidateQueries(); onClose(); }
+    else { toast.success(transfer ? "Transfer updated" : "Transfer completed"); qc.invalidateQueries(); onClose(); }
   };
 
   return (
-    <Modal onClose={onClose} title="Transfer funds">
+    <Modal onClose={onClose} title={transfer ? "Edit transfer" : "Transfer funds"}>
       {accounts.length < 2 ? (
         <p className="text-sm text-muted-foreground">Add at least two accounts before making a transfer.</p>
       ) : (
@@ -139,7 +151,7 @@ function TransferDialog({ onClose, accounts }: { onClose: () => void; accounts: 
           <Field label="Amount (₦)"><input required type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="finlo-input" /></Field>
           <Field label="Description"><input value={description} onChange={(e) => setDescription(e.target.value)} className="finlo-input" placeholder="optional" /></Field>
           <Field label="Date"><input required type="date" value={occurred_on} onChange={(e) => setDate(e.target.value)} className="finlo-input" /></Field>
-          <ModalActions onClose={onClose} saving={saving} label="Transfer" />
+          <ModalActions onClose={onClose} saving={saving} label={transfer ? "Save" : "Transfer"} />
         </form>
       )}
     </Modal>
