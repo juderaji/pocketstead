@@ -1,7 +1,7 @@
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
-import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCart, ListChecks, Settings, LogOut, PiggyBank, Menu, X } from "lucide-react";
+import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCart, ListChecks, Settings, LogOut, PiggyBank, Menu, X, PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { PocketsteadLogo } from "@/components/PocketsteadLogo";
+import { PocketsteadLogo, PocketsteadMark } from "@/components/PocketsteadLogo";
 import { useState } from "react";
 
 const navItems = [
@@ -19,39 +19,47 @@ const navItems = [
 export function AppSidebar() {
   const loc = useLocation();
   const router = useRouter();
+  const [expanded, setExpanded] = useState(false);
   const logout = async () => {
     await supabase.auth.signOut();
     router.navigate({ to: "/" });
   };
   return (
-    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-border bg-sidebar h-screen sticky top-0">
-      <div className="px-5 py-5 border-b border-sidebar-border">
-        <Link to="/" className="flex items-center gap-2 font-display font-bold">
-          <PocketsteadLogo />
+    <aside className={`hidden shrink-0 flex-col bg-sidebar transition-[width] duration-300 md:flex ${expanded ? "w-56" : "w-20"}`}>
+      <div className={`flex items-center px-3 py-5 ${expanded ? "justify-start" : "justify-center"}`}>
+        <Link to="/" aria-label="Pocketstead home" className="font-display font-bold text-white">
+          {expanded ? <PocketsteadLogo /> : <PocketsteadMark className="h-10 w-10 rounded-xl shadow-soft" />}
         </Link>
       </div>
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 space-y-2 px-3 py-2">
         {navItems.map((it) => {
           const active = loc.pathname === it.to || (it.to !== "/app" && loc.pathname.startsWith(it.to));
           return (
             <Link
               key={it.to}
               to={it.to}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+              title={it.label}
+              aria-label={it.label}
+              className={`flex h-11 items-center rounded-xl transition-colors ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"} ${
                 active
-                  ? "bg-primary text-primary-foreground font-medium shadow-soft"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent"
+                  ? "bg-white/22 text-white shadow-soft"
+                  : "text-white/70 hover:bg-white/12 hover:text-white"
               }`}
             >
-              <it.icon className="h-4 w-4" />
-              {it.label}
+              <it.icon className="h-4.5 w-4.5" />
+              {expanded && <span className="text-sm font-medium">{it.label}</span>}
             </Link>
           );
         })}
       </nav>
-      <div className="p-3 border-t border-sidebar-border">
-        <button onClick={logout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent">
-          <LogOut className="h-4 w-4" /> Sign out
+      <div className="space-y-1 px-3 py-4">
+        <button onClick={() => setExpanded((open) => !open)} title={expanded ? "Collapse sidebar" : "Expand sidebar"} aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"} className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
+          {expanded ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeftOpen className="h-4.5 w-4.5" />}
+          {expanded && <span className="text-sm font-medium">Collapse</span>}
+        </button>
+        <button onClick={logout} title="Sign out" aria-label="Sign out" className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
+          <LogOut className="h-4.5 w-4.5" />
+          {expanded && <span className="text-sm font-medium">Sign out</span>}
         </button>
       </div>
     </aside>
@@ -74,7 +82,7 @@ export function MobileNav() {
       {moreOpen && (
         <>
           <button className="fixed inset-0 z-30 bg-foreground/30 md:hidden" aria-label="Close navigation menu" onClick={() => setMoreOpen(false)} />
-          <div className="fixed inset-x-3 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 rounded-2xl border border-border bg-sidebar p-3 shadow-lift md:hidden">
+          <div className="fixed inset-x-3 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 rounded-2xl border border-border bg-surface p-3 shadow-lift md:hidden">
             <div className="mb-2 flex items-center justify-between px-1">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">More</span>
               <button onClick={() => setMoreOpen(false)} className="rounded-lg p-1 text-muted-foreground hover:bg-sidebar-accent" aria-label="Close menu"><X className="h-4 w-4" /></button>
@@ -83,19 +91,19 @@ export function MobileNav() {
               {moreItems.map((it) => {
                 const active = loc.pathname === it.to || loc.pathname.startsWith(it.to);
                 return (
-                  <Link key={it.to} to={it.to} onClick={() => setMoreOpen(false)} className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm ${active ? "bg-primary text-primary-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent"}`}>
+                  <Link key={it.to} to={it.to} onClick={() => setMoreOpen(false)} className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm ${active ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-secondary"}`}>
                     <it.icon className="h-4 w-4" /> {it.label}
                   </Link>
                 );
               })}
             </div>
-            <button onClick={logout} className="mt-2 flex w-full items-center gap-2 rounded-lg border-t border-sidebar-border px-3 py-2.5 text-sm text-muted-foreground hover:bg-sidebar-accent">
+            <button onClick={logout} className="mt-2 flex w-full items-center gap-2 rounded-lg border-t border-border px-3 py-2.5 text-sm text-muted-foreground hover:bg-secondary">
               <LogOut className="h-4 w-4" /> Sign out
             </button>
           </div>
         </>
       )}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-sidebar/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
       {primaryItems.map((it) => {
         const active = loc.pathname === it.to || (it.to !== "/app" && loc.pathname.startsWith(it.to));
         return (

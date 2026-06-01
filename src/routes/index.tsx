@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-10">
+      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
             <PocketsteadLogo />
@@ -57,7 +57,7 @@ function Landing() {
             { icon: Calendar, title: "Financial calendar", desc: "See bills, salary and planned purchases day by day." },
             { icon: ShoppingCart, title: "Shopping intel", desc: "Every wishlist item shows whether you can afford it." },
           ].map((f) => (
-            <div key={f.title} className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
+            <div key={f.title} className="rounded-xl border border-primary/10 bg-primary-soft/55 p-4 shadow-soft sm:rounded-2xl sm:p-5">
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary-soft text-primary">
                 <f.icon className="h-5 w-5" />
               </div>

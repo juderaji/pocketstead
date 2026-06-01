@@ -67,7 +67,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Pocketstead | Your personal finance OS" },
-      { name: "description", content: "Budget, plan, forecast, and shop smarter. Pocketstead is a personal finance operating system for naira spenders." },
+      { name: "description", content: "Budget, plan, forecast, and shop smarter. Pocketstead is a calm personal finance operating system for everyday money decisions." },
       { property: "og:title", content: "Pocketstead | Personal finance OS" },
       { property: "og:description", content: "Budgeting, planning, forecasting, and shopping intelligence in one connected system." },
       { property: "og:type", content: "website" },

@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { accountsQuery, recurringQuery, plannedQuery, transactionsQuery, savingsGoalsQuery } from "@/lib/queries";
 import { formatNGN } from "@/lib/format";
 import { computeForecast } from "@/lib/forecast";
 import { PageHeader } from "@/components/AppSidebar";
-import { ArrowDownRight, ArrowUpRight, TrendingUp, AlertTriangle, ArrowLeftRight, PiggyBank } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, TrendingUp, AlertTriangle, ArrowLeftRight, PiggyBank, Image, ArrowRight } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import { endOfMonth, startOfMonth, format } from "date-fns";
 
@@ -80,14 +80,36 @@ function Dashboard() {
       <PageHeader title="Dashboard" subtitle={format(now, "EEEE, MMMM d")} />
 
       <div className="flex flex-col">
-      <div className="order-1 grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4">
+      <div className="order-1 mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#d9f1ff] via-[#c9ebfb] to-[#b7d8f5] shadow-soft sm:mb-6">
+        <div className="grid min-h-[190px] gap-4 p-5 sm:min-h-[220px] sm:p-7 lg:grid-cols-[1fr_0.9fr]">
+          <div className="flex max-w-xl flex-col justify-center">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/75">Your money, made clearer</span>
+            <h2 className="mt-2 max-w-md text-2xl font-bold leading-tight text-foreground sm:text-3xl">Plan calmly. Spend with context.</h2>
+            <p className="mt-2 max-w-md text-sm leading-6 text-foreground/65">Keep an eye on everyday spending, upcoming commitments, and the savings you have set aside.</p>
+            <Link to="/savings" className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-soft hover:bg-primary/90">
+              Review savings <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <div className="relative hidden min-h-40 overflow-hidden rounded-2xl border border-white/55 bg-white/30 lg:block">
+            <div className="absolute -right-8 -top-12 h-52 w-52 rounded-full bg-white/35" />
+            <div className="absolute bottom-4 left-5 right-5 top-4 grid place-items-center rounded-xl border border-dashed border-primary/30 bg-white/20 text-center">
+              <div>
+                <Image className="mx-auto h-6 w-6 text-primary/55" />
+                <div className="mt-2 text-xs font-semibold text-primary/70">Artwork placeholder</div>
+                <div className="mt-1 text-[11px] text-foreground/50">Your generated illustration will live here.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="order-2 grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4">
         <StatCard label="Total balance" value={formatNGN(totalBalance)} sub={`${accounts.length} accounts`} accent />
         <StatCard label="Total bank balance" value={formatNGN(totalBankBalance)} sub={`${bankAccounts.length} bank ${bankAccounts.length === 1 ? "account" : "accounts"}`} />
         <StatCard label="Income this month" value={formatNGN(monthIncome)} icon={<ArrowUpRight className="text-success h-4 w-4" />} />
         <StatCard label="Spent this month" value={formatNGN(monthExpense)} icon={<ArrowDownRight className="text-destructive h-4 w-4" />} />
       </div>
 
-      <div className="order-2 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3">
+      <div className="order-3 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3">
         <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
           <h2 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">{format(now, "MMMM")} overview</h2>
           <div className="space-y-3">
@@ -123,7 +145,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="order-4 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3">
+      <div className="order-5 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3">
         <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold sm:text-base">Forecast for {format(now, "MMMM")}</h2>
@@ -187,7 +209,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="order-3 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-2">
+      <div className="order-4 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
           <h2 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">Last 6 months</h2>
           <ResponsiveContainer width="100%" height={190}>
@@ -240,13 +262,13 @@ function Dashboard() {
 
 function StatCard({ label, value, sub, icon, accent }: { label: string; value: string; sub?: string; icon?: React.ReactNode; accent?: boolean }) {
   return (
-    <div className={`min-w-0 rounded-xl border p-3 shadow-soft sm:rounded-2xl sm:p-5 ${accent ? "bg-foreground text-background border-foreground" : "bg-surface border-border"}`}>
+    <div className={`min-w-0 rounded-xl border p-3 shadow-soft sm:rounded-2xl sm:p-5 ${accent ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface"}`}>
       <div className="flex items-center justify-between">
-        <span className={`text-[10px] uppercase leading-tight tracking-wider sm:text-xs ${accent ? "text-background/60" : "text-muted-foreground"}`}>{label}</span>
+        <span className={`text-[10px] uppercase leading-tight tracking-wider sm:text-xs ${accent ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{label}</span>
         {icon}
       </div>
       <div className="num mt-1.5 truncate text-lg font-bold sm:mt-2 sm:text-3xl">{value}</div>
-      {sub && <div className={`text-xs mt-1 ${accent ? "text-background/60" : "text-muted-foreground"}`}>{sub}</div>}
+      {sub && <div className={`text-xs mt-1 ${accent ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{sub}</div>}
     </div>
   );
 }
