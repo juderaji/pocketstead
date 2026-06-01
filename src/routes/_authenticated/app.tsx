@@ -54,6 +54,7 @@ function Dashboard() {
   }
   const catData = Array.from(catMap.values()).sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
   const categoryTotal = catData.reduce((sum, category) => sum + category.value, 0);
+  const donutLabelPositions = buildDonutLabelPositions(catData);
 
   // Last 6 months bar chart
   const monthly: { month: string; income: number; expense: number }[] = [];
@@ -110,17 +111,17 @@ function Dashboard() {
           ) : (
             <>
               <div className="relative">
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height={210}>
                   <PieChart>
                     <Pie
                       data={catData}
                       dataKey="value"
-                      innerRadius={50}
-                      outerRadius={78}
+                      innerRadius={45}
+                      outerRadius={68}
                       paddingAngle={2}
                       startAngle={90}
                       endAngle={-270}
-                      label={renderDonutLabel}
+                      label={({ index, cx, cy }) => renderDonutLabel(donutLabelPositions[index], Number(cx), Number(cy))}
                       labelLine={false}
                     >
                       {catData.map((c, i) => <Cell key={i} fill={c.color} />)}
@@ -212,17 +213,77 @@ function ForecastRow({ label, value, highlight }: { label: string; value: string
   );
 }
 
-function renderDonutLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) {
-  if (!percent || percent < 0.05) return null;
+type DonutLabelPosition = {
+  anchorX: number;
+  anchorY: number;
+  elbowX: number;
+  elbowY: number;
+  labelX: number;
+  labelY: number;
+  percentage: number;
+  side: "left" | "right";
+};
 
-  const radius = Number(innerRadius) + (Number(outerRadius) - Number(innerRadius)) * 0.5;
-  const angle = -Number(midAngle) * (Math.PI / 180);
-  const x = Number(cx) + radius * Math.cos(angle);
-  const y = Number(cy) + radius * Math.sin(angle);
+function buildDonutLabelPositions(data: { value: number }[]): DonutLabelPosition[] {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  let angle = 90;
+  const positions = data.map((item) => {
+    const sweep = total ? (item.value / total) * 360 : 0;
+    const radians = -(angle - sweep / 2) * (Math.PI / 180);
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    const side = cos >= 0 ? "right" : "left";
+    angle -= sweep;
 
+    return {
+      anchorX: cos * 70,
+      anchorY: sin * 70,
+      elbowX: cos * 84,
+      elbowY: sin * 84,
+      labelX: side === "right" ? 102 : -102,
+      labelY: sin * 84,
+      percentage: total ? Math.round((item.value / total) * 100) : 0,
+      side,
+    } satisfies DonutLabelPosition;
+  });
+
+  for (const side of ["left", "right"] as const) {
+    const sidePositions = positions.filter((position) => position.side === side).sort((a, b) => a.labelY - b.labelY);
+    const minY = -82;
+    const maxY = 82;
+    const gap = 17;
+
+    for (let i = 0; i < sidePositions.length; i++) {
+      sidePositions[i].labelY = Math.max(sidePositions[i].labelY, i === 0 ? minY : sidePositions[i - 1].labelY + gap);
+    }
+    for (let i = sidePositions.length - 1; i >= 0; i--) {
+      sidePositions[i].labelY = Math.min(sidePositions[i].labelY, i === sidePositions.length - 1 ? maxY : sidePositions[i + 1].labelY - gap);
+    }
+  }
+
+  return positions;
+}
+
+function renderDonutLabel(position: DonutLabelPosition, cx: number, cy: number) {
+  const lineEndX = position.labelX + (position.side === "right" ? -4 : 4);
   return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-[11px] font-semibold">
-      {Math.round(percent * 100)}%
-    </text>
+    <g>
+      <polyline
+        points={`${cx + position.anchorX},${cy + position.anchorY} ${cx + position.elbowX},${cy + position.elbowY} ${cx + lineEndX},${cy + position.labelY}`}
+        fill="none"
+        stroke="var(--muted-foreground)"
+        strokeWidth={1}
+      />
+      <text
+        x={cx + position.labelX}
+        y={cy + position.labelY}
+        fill="var(--muted-foreground)"
+        textAnchor={position.side === "right" ? "start" : "end"}
+        dominantBaseline="central"
+        className="text-[11px] font-medium"
+      >
+        {position.percentage}%
+      </text>
+    </g>
   );
 }
