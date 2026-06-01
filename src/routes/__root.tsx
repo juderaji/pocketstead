@@ -104,7 +104,8 @@ function AuthListener() {
   const router = useRouter();
   const qc = useQueryClient();
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "INITIAL_SESSION") return;
       router.invalidate();
       qc.invalidateQueries();
     });

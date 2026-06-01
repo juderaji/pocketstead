@@ -3,14 +3,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar, MobileNav } from "@/components/AppSidebar";
 
 export const Route = createFileRoute("/_authenticated")({
+  ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
-      throw redirect({ to: "/login" });
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data.session) {
+      throw redirect({ to: "/login", replace: true });
     }
   },
+  pendingComponent: AuthLoading,
   component: AuthLayout,
 });
+
+function AuthLoading() {
+  return (
+    <div className="grid min-h-screen place-items-center bg-background">
+      <p className="text-sm text-muted-foreground">Loading Pocketstead...</p>
+    </div>
+  );
+}
 
 function AuthLayout() {
   return (
