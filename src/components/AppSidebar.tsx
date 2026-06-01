@@ -46,7 +46,7 @@ export function AppSidebar() {
                 }`}
               >
                 <it.icon className="h-4.5 w-4.5" />
-                {expanded && <span className="text-sm font-medium">{it.label}</span>}
+                {expanded && <span className="ui-tech text-xs font-semibold uppercase">{it.label}</span>}
               </Link>
             </SidebarTooltip>
           );
@@ -56,13 +56,13 @@ export function AppSidebar() {
         <SidebarTooltip label={expanded ? "Collapse sidebar" : "Expand sidebar"} show={!expanded}>
           <button onClick={() => setExpanded((open) => !open)} aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"} className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
             {expanded ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeftOpen className="h-4.5 w-4.5" />}
-            {expanded && <span className="text-sm font-medium">Minimize</span>}
+            {expanded && <span className="ui-tech text-xs font-semibold uppercase">Minimize</span>}
           </button>
         </SidebarTooltip>
         <SidebarTooltip label="Sign out" show={!expanded}>
           <button onClick={logout} aria-label="Sign out" className={`flex h-11 items-center rounded-xl text-white/65 hover:bg-white/12 hover:text-white ${expanded ? "w-full gap-3 px-3" : "w-14 justify-center"}`}>
             <LogOut className="h-4.5 w-4.5" />
-            {expanded && <span className="text-sm font-medium">Sign out</span>}
+            {expanded && <span className="ui-tech text-xs font-semibold uppercase">Sign out</span>}
           </button>
         </SidebarTooltip>
       </div>
@@ -142,7 +142,7 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
   return (
     <div className="mb-4 flex flex-wrap items-end justify-between gap-3 sm:mb-6">
       <div>
-        <h1 className="text-xl font-bold sm:text-2xl">{title}</h1>
+        <h1 className="text-xl font-bold uppercase tracking-[0.04em] sm:text-2xl">{title}</h1>
         {subtitle && <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1 sm:text-sm">{subtitle}</p>}
       </div>
       {action && <div className="w-full [&_.btn-primary]:w-full [&_.btn-primary]:justify-center sm:w-auto sm:[&_.btn-primary]:w-auto">{action}</div>}

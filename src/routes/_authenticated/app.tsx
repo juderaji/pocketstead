@@ -83,11 +83,11 @@ function Dashboard() {
       <div className="order-1 mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#d9f1ff] via-[#c9ebfb] to-[#b7d8f5] shadow-soft sm:mb-6">
         <div className="grid min-h-[190px] gap-4 p-5 sm:min-h-[220px] sm:p-7 lg:grid-cols-[1fr_0.9fr]">
           <div className="flex max-w-xl flex-col justify-center">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/75">Your money, made clearer</span>
-            <h2 className="mt-2 max-w-md text-2xl font-bold leading-tight text-foreground sm:text-3xl">Plan calmly. Spend with context.</h2>
+            <span className="ui-tech text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/75">Your money, made clearer</span>
+            <h2 className="mt-2 max-w-md text-2xl font-bold uppercase leading-tight tracking-[0.035em] text-foreground sm:text-3xl">Plan calmly. Spend with context.</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-foreground/65">Keep an eye on everyday spending, upcoming commitments, and the savings you have set aside.</p>
             <Link to="/savings" className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-soft hover:bg-primary/90">
-              Review savings <ArrowRight className="h-3.5 w-3.5" />
+              <span className="ui-tech uppercase">Review savings</span> <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
           <div className="relative hidden min-h-40 overflow-hidden rounded-2xl border border-white/55 bg-white/30 lg:block">
@@ -264,7 +264,7 @@ function StatCard({ label, value, sub, icon, accent }: { label: string; value: s
   return (
     <div className={`min-w-0 rounded-xl border p-3 shadow-soft sm:rounded-2xl sm:p-5 ${accent ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface"}`}>
       <div className="flex items-center justify-between">
-        <span className={`text-[10px] uppercase leading-tight tracking-wider sm:text-xs ${accent ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{label}</span>
+        <span className={`ui-tech text-[10px] uppercase leading-tight tracking-wider sm:text-xs ${accent ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{label}</span>
         {icon}
       </div>
       <div className="num mt-1.5 truncate text-lg font-bold sm:mt-2 sm:text-3xl">{value}</div>

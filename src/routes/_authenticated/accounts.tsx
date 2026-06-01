@@ -144,10 +144,10 @@ export function EmptyState({ text, onAction }: { text: string; onAction?: () => 
 
 export function BtnStyles() {
   return <style>{`
-    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;border-radius:.5rem;background:var(--primary);color:var(--primary-foreground);padding:.5rem .875rem;font-size:.8125rem;font-weight:500}
+    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;border-radius:.5rem;background:var(--primary);color:var(--primary-foreground);padding:.5rem .875rem;font-family:var(--font-display);font-size:.75rem;font-weight:600;letter-spacing:.055em;text-transform:uppercase}
     .btn-primary:hover{opacity:.9}
     .finlo-input{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:.5rem;padding:.55rem .75rem;font-size:.9rem;outline:none}
     .finlo-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
-    @media (min-width:640px){.btn-primary{padding:.5rem 1rem;font-size:.875rem}}
+    @media (min-width:640px){.btn-primary{padding:.5rem 1rem;font-size:.8125rem}}
   `}</style>;
 }
