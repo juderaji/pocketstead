@@ -227,6 +227,53 @@ export type Database = {
           },
         ]
       }
+      savings_goals: {
+        Row: {
+          account_id: string
+          color: string
+          created_at: string
+          due_date: string | null
+          id: string
+          name: string
+          saved_amount: number
+          target_amount: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          color?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          name: string
+          saved_amount?: number
+          target_amount?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          color?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          name?: string
+          saved_amount?: number
+          target_amount?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "savings_goals_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shopping_items: {
         Row: {
           category_id: string | null
@@ -333,6 +380,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      adjust_savings_goal: {
+        Args: {
+          p_amount: number
+          p_goal_id: string
+        }
+        Returns: undefined
+      }
       delete_category: {
         Args: {
           p_category_id: string

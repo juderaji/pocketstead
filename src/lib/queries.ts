@@ -45,6 +45,15 @@ export const budgetsQuery = queryOptions({
   },
 });
 
+export const savingsGoalsQuery = queryOptions({
+  queryKey: ["savings-goals"],
+  queryFn: async () => {
+    const { data, error } = await supabase.from("savings_goals").select("*").order("created_at");
+    if (error) throw error;
+    return data;
+  },
+});
+
 export const plannedQuery = queryOptions({
   queryKey: ["planned"],
   queryFn: async () => {

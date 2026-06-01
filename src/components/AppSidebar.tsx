@@ -1,5 +1,5 @@
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
-import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCart, ListChecks, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCart, ListChecks, Settings, LogOut, PiggyBank } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: "/accounts", label: "Accounts", icon: Wallet },
   { to: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { to: "/budgets", label: "Budgets", icon: PieChart },
+  { to: "/savings", label: "Savings", icon: PiggyBank },
   { to: "/planned", label: "Planned", icon: ListChecks },
   { to: "/shopping", label: "Shopping", icon: ShoppingCart },
   { to: "/calendar", label: "Calendar", icon: Calendar },
