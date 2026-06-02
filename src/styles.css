@@ -161,4 +161,9 @@
     font-family: var(--font-display);
     letter-spacing: 0.055em;
   }
+  @media (max-width: 639px) {
+    input, select, textarea {
+      font-size: 1rem !important;
+    }
+  }
 }
