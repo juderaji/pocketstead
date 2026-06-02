@@ -6,7 +6,9 @@ import { PageHeader } from "@/components/AppSidebar";
 import { Modal, Field, ModalActions, BtnStyles } from "./accounts";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Check, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { avatarOptions } from "@/lib/avatar-options";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings | Pocketstead" }] }),
@@ -25,6 +27,8 @@ function SettingsPage() {
   const [editing, setEditing] = useState<any | null>(null);
   const [name, setName] = useState(profile.display_name ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
+  const [uploading, setUploading] = useState(false);
 
   const saveProfile = async () => {
     setSavingProfile(true);
@@ -32,6 +36,45 @@ function SettingsPage() {
     setSavingProfile(false);
     if (error) toast.error(error.message);
     else { toast.success("Saved"); qc.invalidateQueries({ queryKey: ["profile"] }); }
+  };
+
+  const saveAvatar = async (url: string) => {
+    const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
+    if (error) toast.error(error.message);
+    else {
+      setAvatarUrl(url);
+      toast.success("Avatar updated");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    }
+  };
+
+  const uploadAvatar = async (file?: File) => {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Choose a JPG, PNG, or WebP image");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Profile image must be 3 MB or smaller");
+      return;
+    }
+    setUploading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setUploading(false);
+      return;
+    }
+    const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
+    const { error } = await supabase.storage.from("profile-avatars").upload(path, file, { contentType: file.type });
+    if (error) {
+      toast.error(error.message);
+      setUploading(false);
+      return;
+    }
+    const { data } = supabase.storage.from("profile-avatars").getPublicUrl(path);
+    await saveAvatar(data.publicUrl);
+    setUploading(false);
   };
 
   const removeCat = async (id: string) => {
@@ -50,6 +93,32 @@ function SettingsPage() {
           <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
             <Field label="Display name"><input value={name} onChange={(e) => setName(e.target.value)} className="finlo-input" /></Field>
             <button onClick={saveProfile} disabled={savingProfile} className="btn-primary justify-center">{savingProfile ? "Saving..." : "Save"}</button>
+          </div>
+          <div className="mt-5 border-t border-border pt-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <Avatar className="h-12 w-12 border border-border">
+                  {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
+                  <AvatarFallback className="text-xs font-bold text-primary">{(name || "PS").slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold">Profile picture</h3>
+                  <p className="truncate text-xs text-muted-foreground">Pick an avatar or upload your own image.</p>
+                </div>
+              </div>
+              <label className="btn-primary cursor-pointer justify-center">
+                <Upload className="h-4 w-4" /> {uploading ? "Uploading..." : "Upload"}
+                <input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={(event) => uploadAvatar(event.target.files?.[0])} className="sr-only" />
+              </label>
+            </div>
+            <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+              {avatarOptions.map((url) => (
+                <button key={url} type="button" onClick={() => saveAvatar(url)} aria-label="Choose profile avatar" className={`relative rounded-full transition-transform hover:scale-105 ${avatarUrl === url ? "ring-2 ring-primary ring-offset-2" : ""}`}>
+                  <Avatar className="h-full w-full border border-border"><AvatarImage src={url} alt="" /></Avatar>
+                  {avatarUrl === url && <span className="absolute -bottom-0.5 -right-0.5 grid h-4 w-4 place-items-center rounded-full bg-primary text-primary-foreground"><Check className="h-3 w-3" /></span>}
+                </button>
+              ))}
+            </div>
           </div>
           <p className="text-xs text-muted-foreground mt-3">Currency: <strong>NGN (₦)</strong></p>
         </section>

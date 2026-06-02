@@ -3,6 +3,7 @@ import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCa
 import { supabase } from "@/integrations/supabase/client";
 import { PocketsteadLogo, PocketsteadMark } from "@/components/PocketsteadLogo";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ProfileMenu } from "@/components/ProfileMenu";
 import { useState, type ReactElement } from "react";
 
 const navItems = [
@@ -140,12 +141,15 @@ export function MobileNav() {
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
   return (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-3 sm:mb-6">
+    <div className="mb-4 flex flex-wrap items-start justify-between gap-3 sm:mb-6">
       <div>
         <h1 className="text-xl font-bold uppercase tracking-[0.04em] sm:text-2xl">{title}</h1>
         {subtitle && <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1 sm:text-sm">{subtitle}</p>}
       </div>
-      {action && <div className="w-full [&_.btn-primary]:w-full [&_.btn-primary]:justify-center sm:w-auto sm:[&_.btn-primary]:w-auto">{action}</div>}
+      <div className={`w-full items-center gap-2 sm:w-auto ${action ? "flex" : "hidden md:flex"}`}>
+        {action && <div className="w-full [&_.btn-primary]:w-full [&_.btn-primary]:justify-center sm:w-auto sm:[&_.btn-primary]:w-auto">{action}</div>}
+        <div className="ml-auto hidden md:block"><ProfileMenu /></div>
+      </div>
     </div>
   );
 }

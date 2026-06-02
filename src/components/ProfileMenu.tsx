@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function ProfileMenu() {
+export function ProfileMenu({ showName = true }: { showName?: boolean }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const { data: profile } = useQuery({ ...profileQuery, retry: false });
@@ -27,7 +27,7 @@ export function ProfileMenu() {
   const metadata = user?.user_metadata ?? {};
   const name = profile?.display_name || metadata.full_name || metadata.name || user?.email?.split("@")[0] || "Account";
   const email = user?.email;
-  const avatarUrl = metadata.avatar_url || metadata.picture;
+  const avatarUrl = profile?.avatar_url || metadata.avatar_url || metadata.picture;
   const initials = name
     .split(/\s+/)
     .filter(Boolean)
@@ -42,7 +42,7 @@ export function ProfileMenu() {
   };
 
   return (
-    <div className="mb-3 flex justify-end sm:mb-5">
+    <div className="flex justify-end">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
@@ -54,8 +54,8 @@ export function ProfileMenu() {
               {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
               <AvatarFallback className="bg-primary/12 text-[10px] font-bold text-primary sm:text-xs">{initials || "PS"}</AvatarFallback>
             </Avatar>
-            <span className="hidden max-w-36 truncate text-sm font-medium sm:inline">{name}</span>
-            <ChevronDown className="mr-1 hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
+            {showName && <span className="hidden max-w-36 truncate text-sm font-medium lg:inline">{name}</span>}
+            {showName && <ChevronDown className="mr-1 hidden h-3.5 w-3.5 text-muted-foreground lg:block" />}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" sideOffset={8} className="w-56 rounded-xl p-1.5 shadow-lift">

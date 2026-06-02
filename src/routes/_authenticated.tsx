@@ -1,7 +1,8 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar, MobileNav } from "@/components/AppSidebar";
 import { ProfileMenu } from "@/components/ProfileMenu";
+import { PocketsteadLogo } from "@/components/PocketsteadLogo";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -30,7 +31,12 @@ function AuthLayout() {
         <AppSidebar />
         <main className="min-w-0 flex-1 bg-surface pb-20 md:h-screen md:overflow-y-auto md:pb-0">
           <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6 md:px-7 md:py-8 lg:px-9">
-            <ProfileMenu />
+            <div className="mb-4 flex items-center justify-between md:hidden">
+              <Link to="/" aria-label="Pocketstead home" className="font-display text-sm font-bold text-primary">
+                <PocketsteadLogo />
+              </Link>
+              <ProfileMenu showName={false} />
+            </div>
             <Outlet />
           </div>
         </main>
