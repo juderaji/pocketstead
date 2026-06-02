@@ -107,7 +107,7 @@ function Dashboard() {
         <StatCard label="Spent this month" value={formatNGN(monthExpense)} icon={<ArrowDownRight className="text-destructive h-4 w-4" />} />
       </div>
 
-      <div className="order-3 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3">
+      <div className="order-4 mt-4 grid gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3">
         <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
           <h2 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">Recent activity</h2>
           {recentActivity.length === 0 ? (
@@ -203,7 +203,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="order-5 mt-4 rounded-xl border border-border bg-surface p-4 shadow-soft sm:mt-6 sm:rounded-2xl sm:p-5">
+      <div className="order-3 mt-4 rounded-xl border border-border bg-surface p-4 shadow-soft sm:mt-6 sm:rounded-2xl sm:p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold sm:text-base">Forecast for {format(now, "MMMM")}</h2>
           <TrendingUp className="h-4 w-4 text-primary" />
@@ -227,7 +227,7 @@ function Dashboard() {
         )}
       </div>
 
-      <div className="order-4 mt-4 sm:mt-6">
+      <div className="order-5 mt-4 sm:mt-6">
         <div className="rounded-xl border border-border bg-surface p-4 shadow-soft sm:rounded-2xl sm:p-5">
           <h2 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">{now.getFullYear()} monthly trend</h2>
           <ResponsiveContainer width="100%" height={220}>
