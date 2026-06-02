@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { getPublicSiteUrl } from "@/integrations/supabase/config";
 import { PocketsteadLogo } from "@/components/PocketsteadLogo";
@@ -36,8 +35,11 @@ function LoginPage() {
   };
 
   const onGoogle = async () => {
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: getPublicSiteUrl() + "/app" });
-    if (res.error) toast.error("Google sign-in failed");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: getPublicSiteUrl() + "/app" },
+    });
+    if (error) toast.error(error.message);
   };
 
   return <AuthShell title="Welcome back" subtitle="Sign in to your Pocketstead account">
