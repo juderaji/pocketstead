@@ -1,5 +1,5 @@
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
-import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ShoppingCart, ListChecks, Settings, LogOut, PiggyBank, Menu, X, PanelLeftOpen, PanelLeftClose } from "lucide-react";
+import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Calendar, ListChecks, Settings, LogOut, PiggyBank, Menu, X, PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PocketsteadLogo, PocketsteadMark } from "@/components/PocketsteadLogo";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -12,8 +12,7 @@ const navItems = [
   { to: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { to: "/budgets", label: "Budgets", icon: PieChart },
   { to: "/savings", label: "Savings", icon: PiggyBank },
-  { to: "/planned", label: "Planned", icon: ListChecks },
-  { to: "/shopping", label: "Shopping", icon: ShoppingCart },
+  { to: "/planned", label: "Planned Spending", icon: ListChecks },
   { to: "/calendar", label: "Calendar", icon: Calendar },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
