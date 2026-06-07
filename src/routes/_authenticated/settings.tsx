@@ -84,6 +84,30 @@ function SettingsPage() {
     else { toast.success("Deleted"); qc.invalidateQueries(); }
   };
 
+  const categoryGroups = [
+    {
+      key: "expense",
+      title: "Expense categories",
+      description: "Used for transactions, budgets, planned spending, and recurring bills.",
+      items: categories.filter((c: any) => c.kind === "expense"),
+    },
+    {
+      key: "income",
+      title: "Income categories",
+      description: "Used for salary, transfers in, repayments, and other money coming in.",
+      items: categories.filter((c: any) => c.kind === "income"),
+    },
+  ];
+  const otherCategories = categories.filter((c: any) => !["expense", "income"].includes(c.kind));
+  if (otherCategories.length) {
+    categoryGroups.push({
+      key: "other",
+      title: "Other categories",
+      description: "Categories with a custom type.",
+      items: otherCategories,
+    });
+  }
+
   return (
     <>
       <PageHeader title="Settings" />
@@ -125,20 +149,43 @@ function SettingsPage() {
 
         <section className="rounded-xl border border-border bg-surface p-3 shadow-soft sm:rounded-2xl sm:p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Categories</h2>
+            <div>
+              <h2 className="font-semibold">Categories</h2>
+              <p className="mt-1 text-xs text-muted-foreground">Grouped by how they behave across the app.</p>
+            </div>
             <button onClick={() => setOpen(true)} className="btn-primary"><Plus className="h-4 w-4" /> Add</button>
           </div>
-          <ul className="space-y-1.5">
-            {categories.map((c: any) => (
-              <li key={c.id} className="flex items-center gap-2 rounded-lg p-2 hover:bg-secondary/50 sm:gap-3">
-                <span className="h-3 w-3 rounded-full" style={{ background: c.color }} />
-                <span className="flex-1 truncate text-sm font-medium sm:text-base">{c.name}</span>
-                <span className="hidden text-xs uppercase text-muted-foreground sm:inline">{c.kind}</span>
-                <button onClick={() => setEditing(c)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${c.name}`}><Pencil className="h-4 w-4" /></button>
-                <button onClick={() => removeCat(c.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Delete ${c.name}`}><Trash2 className="h-4 w-4" /></button>
-              </li>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {categoryGroups.map((group) => (
+              <div key={group.key} className="rounded-xl border border-border/80 bg-background/60 p-3 sm:p-4">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-semibold sm:text-base">{group.title}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">{group.description}</p>
+                  </div>
+                  <span className="rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary">
+                    {group.items.length}
+                  </span>
+                </div>
+                {group.items.length ? (
+                  <ul className="space-y-1.5">
+                    {group.items.map((c: any) => (
+                      <li key={c.id} className="flex items-center gap-2 rounded-lg p-2 hover:bg-secondary/50 sm:gap-3">
+                        <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: c.color }} />
+                        <span className="flex-1 truncate text-sm font-medium sm:text-base">{c.name}</span>
+                        <button onClick={() => setEditing(c)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${c.name}`}><Pencil className="h-4 w-4" /></button>
+                        <button onClick={() => removeCat(c.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Delete ${c.name}`}><Trash2 className="h-4 w-4" /></button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+                    No {group.key} categories yet.
+                  </div>
+                )}
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       </div>
       {open && <CategoryDialog onClose={() => setOpen(false)} />}
