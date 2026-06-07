@@ -10,6 +10,8 @@ import { Check, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { avatarOptions } from "@/lib/avatar-options";
 
+type CategoryKind = "expense" | "income";
+
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings | Pocketstead" }] }),
   loader: ({ context }) =>
@@ -83,6 +85,8 @@ function SettingsPage() {
     if (error) toast.error(error.message);
     else { toast.success("Deleted"); qc.invalidateQueries(); }
   };
+
+  const isDefaultCategory = (category: any) => category.name?.trim().toLowerCase() === "other";
 
   const categoryGroups = [
     {
@@ -173,8 +177,16 @@ function SettingsPage() {
                       <li key={c.id} className="flex items-center gap-2 rounded-lg p-2 hover:bg-secondary/50 sm:gap-3">
                         <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: c.color }} />
                         <span className="flex-1 truncate text-sm font-medium sm:text-base">{c.name}</span>
-                        <button onClick={() => setEditing(c)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${c.name}`}><Pencil className="h-4 w-4" /></button>
-                        <button onClick={() => removeCat(c.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Delete ${c.name}`}><Trash2 className="h-4 w-4" /></button>
+                        {isDefaultCategory(c) ? (
+                          <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            Default
+                          </span>
+                        ) : (
+                          <>
+                            <button onClick={() => setEditing(c)} className="text-muted-foreground hover:text-primary" aria-label={`Edit ${c.name}`}><Pencil className="h-4 w-4" /></button>
+                            <button onClick={() => removeCat(c.id)} className="text-muted-foreground hover:text-destructive" aria-label={`Delete ${c.name}`}><Trash2 className="h-4 w-4" /></button>
+                          </>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -198,7 +210,8 @@ function SettingsPage() {
 function CategoryDialog({ onClose, category }: { onClose: () => void; category?: any }) {
   const qc = useQueryClient();
   const [name, setName] = useState(category?.name ?? "");
-  const [kind, setKind] = useState<"income" | "expense">(category?.kind ?? "expense");
+  const initialKind: CategoryKind = category?.kind === "income" ? "income" : "expense";
+  const [kind, setKind] = useState<CategoryKind>(initialKind);
   const [color, setColor] = useState(category?.color ?? "#3b82f6");
   const [saving, setSaving] = useState(false);
 
@@ -219,16 +232,50 @@ function CategoryDialog({ onClose, category }: { onClose: () => void; category?:
     <Modal onClose={onClose} title={category ? "Edit category" : "New category"}>
       <form onSubmit={save} className="space-y-3">
         <Field label="Name"><input required value={name} onChange={(e) => setName(e.target.value)} className="finlo-input" /></Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Type">
-            <select value={kind} onChange={(e) => setKind(e.target.value as any)} className="finlo-input">
-              <option value="expense">Expense</option><option value="income">Income</option>
-            </select>
-          </Field>
+        <div className="space-y-2">
+          <div className="text-xs font-medium text-muted-foreground">Type</div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <CategoryTypeOption
+              active={kind === "expense"}
+              description="Spending, bills, budgets, and planned expenses"
+              title="Expense"
+              onClick={() => setKind("expense")}
+            />
+            <CategoryTypeOption
+              active={kind === "income"}
+              description="Salary, repayments, gifts, and money coming in"
+              title="Income"
+              onClick={() => setKind("income")}
+            />
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Color"><input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="finlo-input h-10" /></Field>
         </div>
         <ModalActions onClose={onClose} saving={saving} />
       </form>
     </Modal>
+  );
+}
+
+function CategoryTypeOption({ active, description, onClick, title }: { active: boolean; description: string; onClick: () => void; title: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-xl border p-3 text-left transition ${
+        active
+          ? "border-primary bg-primary-soft text-foreground shadow-soft"
+          : "border-border bg-background hover:border-primary/40"
+      }`}
+    >
+      <span className="flex items-center gap-2 text-sm font-semibold">
+        <span className={`grid h-4 w-4 place-items-center rounded-full border ${active ? "border-primary bg-primary" : "border-muted-foreground/40"}`}>
+          {active && <Check className="h-3 w-3 text-primary-foreground" />}
+        </span>
+        {title}
+      </span>
+      <span className="mt-1 block text-xs text-muted-foreground">{description}</span>
+    </button>
   );
 }
